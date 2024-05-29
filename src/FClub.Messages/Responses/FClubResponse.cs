@@ -3,12 +3,12 @@ using Mediator.Net.Contracts;
 
 namespace FClub.Messages.Responses;
 
-public class CommonResponse<T> : CommonResponse
+public class FClubResponse<T> : FClubResponse
 {
     public T Data { get; set; }
 }
 
-public class CommonResponse : IResponse
+public class FClubResponse : IResponse
 {
     public HttpStatusCode Code { get; set; }
 
