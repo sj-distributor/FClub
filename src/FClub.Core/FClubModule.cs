@@ -1,13 +1,17 @@
 using Autofac;
 using Serilog;
 using Mediator.Net;
-using System.Reflection;
 using FClub.Core.Ioc;
-using FClub.Core.Middlewares.UnitOfWork;
+using FClub.Core.Data;
+using System.Reflection;
 using FClub.Core.Settings;
 using Mediator.Net.Autofac;
+using Microsoft.EntityFrameworkCore;
+using FClub.Core.Middlewares.UnitOfWork;
 using Mediator.Net.Middlewares.Serilog;
 using Microsoft.Extensions.Configuration;
+using FClub.Core.Middlewares.UnifyResponse;
+using AutoMapper.Contrib.Autofac.DependencyInjection;
 using Module = Autofac.Module;
 
 namespace FClub.Core;
@@ -27,10 +31,12 @@ public class FClubModule : Module
 
     protected override void Load(ContainerBuilder builder)
     {
+        RegisterLogger(builder);
+        RegisterSettings(builder);
         RegisterMediator(builder);
         RegisterDependency(builder);
-        RegisterSettings(builder);
-        RegisterLogger(builder);
+        RegisterDatabase(builder);
+        RegisterAutoMapper(builder);
     }
 
     private void RegisterDependency(ContainerBuilder builder)
@@ -65,6 +71,7 @@ public class FClubModule : Module
         mediatorBuilder.ConfigureGlobalReceivePipe(c =>
         {
             c.UseUnitOfWork();
+            c.UseUnifyResponse();
             c.UseSerilog(logger: _logger);
         });
 
@@ -83,5 +90,21 @@ public class FClubModule : Module
             .ToArray();
 
         builder.RegisterTypes(settingTypes).AsSelf().SingleInstance();
+    }
+    
+    private void RegisterDatabase(ContainerBuilder builder)
+    {
+        builder.RegisterType<FClubDbContext>()
+            .AsSelf()
+            .As<DbContext>()
+            .AsImplementedInterfaces()
+            .InstancePerLifetimeScope();
+
+        builder.RegisterType<EfRepository>().As<IRepository>().InstancePerLifetimeScope();
+    }
+    
+    private void RegisterAutoMapper(ContainerBuilder builder)
+    {
+        builder.RegisterAutoMapper(typeof(FClubModule).Assembly);
     }
 }

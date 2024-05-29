@@ -1,7 +1,7 @@
 using Hangfire;
-using FClub.Core.Ioc;
 using Hangfire.States;
 using Hangfire.Storage;
+using FClub.Core.Ioc;
 using System.Linq.Expressions;
 
 namespace FClub.Core.Services.Jobs;
@@ -79,7 +79,7 @@ public class FClubBackgroundJobClient : IFClubBackgroundJobClient
     {
         return _backgroundJobClientFunc()?.Schedule(queue, methodCall, enqueueAt);
     }
-    
+
     public string Schedule<T>(Expression<Func<T, Task>> methodCall, TimeSpan delay, string queue = "default")
     {
         return _backgroundJobClientFunc()?.Schedule(queue, methodCall, delay);
@@ -125,6 +125,6 @@ public class FClubBackgroundJobClient : IFClubBackgroundJobClient
     
     public StateData GetJobState(string jobId)
     {
-        return new StateData();
+        return JobStorage.Current.GetConnection().GetStateData(jobId);
     }
 }

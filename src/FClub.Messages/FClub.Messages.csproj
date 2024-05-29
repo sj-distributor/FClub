@@ -7,12 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Mediator.Net" Version="4.8.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Enums\" />
-      <Folder Include="Requests\" />
+      <PackageReference Include="Mediator.Net" Version="4.7.0" />
+      <PackageReference Include="NSubstitute" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

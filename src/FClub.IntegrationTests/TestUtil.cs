@@ -1,5 +1,11 @@
+using Autofac;
+
 namespace FClub.IntegrationTests;
 
-public class TestUtil
+public class TestUtil : TestUtilBase
 {
+    protected TestUtil(ILifetimeScope scope)
+    {
+        SetupScope(scope);
+    }
 }
