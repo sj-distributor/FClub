@@ -4,15 +4,10 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>FClub.UniTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Services\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\src\FClub.Core\FClub.Core.csproj" />
+      <ProjectReference Include="..\FClub.Core\FClub.Core.csproj" />
     </ItemGroup>
 
 </Project>

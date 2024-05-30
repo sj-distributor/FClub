@@ -1,0 +1,44 @@
+FROM registry-vpc.cn-hongkong.aliyuncs.com/wiltechs/sdk:7.0 AS build-env
+
+USER root
+
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 443
+
+COPY ./src/FClub.Api ./build/FClub.Api
+COPY ./src/FClub.Core ./build/FClub.Core
+COPY ./src/FClub.Messages ./build/FClub.Messages
+COPY ./NuGet.Config ./build
+
+RUN dotnet publish build/FClub.Api -c Release -o out
+
+FROM registry-vpc.cn-hongkong.aliyuncs.com/wiltechs/aspnet:7.0
+
+USER root
+
+# ffmpeg
+RUN apt-get update && apt-get install -y bzip2 make gcc yasm libopencore-amrnb-dev libopencore-amrwb-dev wget
+
+RUN wget https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2 && \
+ tar -jxvf ffmpeg-snapshot.tar.bz2 && \
+cd ffmpeg && \
+ ./configure --enable-gpl --enable-libopencore-amrnb --enable-libopencore-amrwb --prefix=/usr/local/ffmpeg --enable-version3 && \
+make -j8 && make install && \
+ ln -s /usr/local/ffmpeg/bin/ffmpeg /usr/local/bin/
+
+RUN wget -O - https://www.openssl.org/source/openssl-1.1.1u.tar.gz | tar zxf - && \
+    cd openssl-1.1.1u && \
+    ./config --prefix=/usr/local && \
+    make -j$(nproc) && \
+    make install_sw install_ssldirs
+
+RUN ldconfig -v
+
+ENV SSL_CERT_DIR=/etc/ssl/certs
+
+WORKDIR /app
+
+COPY --from=build-env /app/out .
+
+ENTRYPOINT ["dotnet", "FClub.Api.dll"]
