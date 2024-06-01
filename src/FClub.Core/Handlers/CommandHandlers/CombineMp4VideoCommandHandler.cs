@@ -17,7 +17,7 @@ public class CombineMp4VideoCommandHandler : ICommandHandler<CombineMp4VideoComm
     
     public async Task<CombineMp4VideoResponse> Handle(IReceiveContext<CombineMp4VideoCommand> context, CancellationToken cancellationToken)
     {
-        var combinedResult = await _fileService.CombineMp4VideosAsync(context.Message.FilePath, context.Message.S3UploadDto, context.Message.Urls, cancellationToken).ConfigureAwait(false);
+        /*var combinedResult = await _fileService.CombineMp4VideosAsync(context.Message.FilePath, context.Message.S3UploadDto, context.Message.Urls, cancellationToken).ConfigureAwait(false);
 
         var @event = new CombineMp4VideoEvent
         {
@@ -29,6 +29,8 @@ public class CombineMp4VideoCommandHandler : ICommandHandler<CombineMp4VideoComm
         return new CombineMp4VideoResponse
         {
             Data = @event.CombinedResult
-        };
+        };*/
+
+        return new CombineMp4VideoResponse();
     }
 }

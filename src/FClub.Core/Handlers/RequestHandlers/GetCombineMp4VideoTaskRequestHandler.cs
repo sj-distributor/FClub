@@ -16,6 +16,8 @@ public class GetCombineMp4VideoTaskRequestHandler : IRequestHandler<GetCombineMp
 
     public async Task<GetCombineMp4VideoTaskResponse> Handle(IReceiveContext<GetCombineMp4VideoTaskRequest> context, CancellationToken cancellationToken)
     {
-        return await _fileService.GetCombineMp4VideoTaskAsync(context.Message, cancellationToken).ConfigureAwait(false);
+        /*return await _fileService.GetCombineMp4VideoTaskAsync(context.Message, cancellationToken).ConfigureAwait(false);*/
+
+        return new GetCombineMp4VideoTaskResponse();
     }
 }

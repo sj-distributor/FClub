@@ -12,7 +12,7 @@ namespace FClub.Core.Services.FileService;
 
 public partial class FileService
 {
-    public async Task<string> CombineMp4VideosAsync(
+    /*public async Task<string> CombineMp4VideosAsync(
         string filePath, S3UploadDto s3UploadDto, List<string> urls, CancellationToken cancellationToken)
     {
         var byteArrayList = await ConvertUrlsToByteArrays(urls);
@@ -166,5 +166,5 @@ public partial class FileService
             
             Log.Error(ex, "Error on translation");
         }
-    }
+    }*/
 }
