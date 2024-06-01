@@ -16,7 +16,7 @@ public class CombineController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost]
+    /*[HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CombineMp4VideoResponse))]
     public async Task<IActionResult> CombineMp4VideosAsync([FromBody] CombineMp4VideoCommand command)
     {
@@ -45,5 +45,5 @@ public class CombineController : ControllerBase
         }).ConfigureAwait(false);
 
         return Ok(response);
-    }
+    }*/
 }
