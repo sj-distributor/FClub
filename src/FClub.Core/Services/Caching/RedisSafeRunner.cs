@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Serilog;
+using StackExchange.Redis;
+using FClub.Core.Ioc;
 using RedLockNet;
 using RedLockNet.SERedis;
 using RedLockNet.SERedis.Configuration;
-using Serilog;
-using StackExchange.Redis;
-using SugarTalk.Core.Ioc;
 
-namespace SugarTalk.Core.Services.Caching;
+namespace FClub.Core.Services.Caching;
 
 public interface IRedisSafeRunner : IScopedDependency
 {

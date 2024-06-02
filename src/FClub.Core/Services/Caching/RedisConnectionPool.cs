@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
 using StackExchange.Redis;
-using SugarTalk.Core.Ioc;
-using SugarTalk.Core.Settings.Caching;
+using FClub.Core.Ioc;
+using FClub.Core.Settings.Caching;
 
-namespace SugarTalk.Core.Services.Caching;
+namespace FClub.Core.Services.Caching;
 
 public interface IRedisConnectionPool : ISingletonDependency
 {

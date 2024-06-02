@@ -1,9 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace SugarTalk.Core.Services.Caching;
+namespace FClub.Core.Services.Caching;
 
 public class RedisCacheService : ICachingService
 {

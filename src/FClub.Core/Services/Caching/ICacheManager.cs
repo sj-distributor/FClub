@@ -1,8 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using SugarTalk.Core.Ioc;
-using SugarTalk.Messages.Enums.Caching;
+using FClub.Core.Ioc;
+using FClub.Core.Services.Caching;
+using FClub.Messages.Enums.Caching;
 
 namespace SugarTalk.Core.Services.Caching;
 

@@ -1,9 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using SugarTalk.Core.Ioc;
+using FClub.Core.Ioc;
 
-namespace SugarTalk.Core.Services.Caching;
+namespace FClub.Core.Services.Caching;
 
 public interface ICachingService : IScopedDependency
 {
