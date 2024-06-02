@@ -6,6 +6,7 @@ using FClub.Core.Data;
 using System.Reflection;
 using FClub.Core.Settings;
 using Mediator.Net.Autofac;
+using FClub.Core.Services.Caching;
 using Microsoft.EntityFrameworkCore;
 using FClub.Core.Middlewares.UnitOfWork;
 using Mediator.Net.Middlewares.Serilog;
@@ -37,6 +38,7 @@ public class FClubModule : Module
         RegisterDependency(builder);
         RegisterDatabase(builder);
         RegisterAutoMapper(builder);
+        RegisterCaching(builder);
     }
 
     private void RegisterDependency(ContainerBuilder builder)
@@ -106,5 +108,14 @@ public class FClubModule : Module
     private void RegisterAutoMapper(ContainerBuilder builder)
     {
         builder.RegisterAutoMapper(typeof(FClubModule).Assembly);
+    }
+    
+    private void RegisterCaching(ContainerBuilder builder)
+    {
+        builder.Register(cfx =>
+        {
+            var pool = cfx.Resolve<IRedisConnectionPool>();
+            return pool.GetConnection();
+        }).ExternallyOwned();
     }
 }
