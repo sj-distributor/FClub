@@ -1,6 +1,5 @@
 using Mediator.Net;
 using Microsoft.AspNetCore.Mvc;
-using FClub.Core.Services.Caching;
 
 namespace FClub.Api.Controllers;
 
@@ -9,12 +8,10 @@ namespace FClub.Api.Controllers;
 public class CombineController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly ICachingService _cachingService;
     
-    public CombineController(IMediator mediator, ICachingService cachingService)
+    public CombineController(IMediator mediator)
     {
         _mediator = mediator;
-        _cachingService = cachingService;
     }
 
     /*[HttpPost]
@@ -47,14 +44,4 @@ public class CombineController : ControllerBase
 
         return Ok(response);
     }*/
-
-    [Route("caching"), HttpPost]
-    public async Task<IActionResult> SetCachingAsync([FromBody] Dictionary<string, string> setCaching)
-    {
-        await _cachingService.SetAsync(setCaching.First().Key, setCaching.First().Value).ConfigureAwait(false);
-
-        var response = await _cachingService.GetAsync<string>(setCaching.First().Key).ConfigureAwait(false);
-
-        return Ok(response);
-    }
 }
