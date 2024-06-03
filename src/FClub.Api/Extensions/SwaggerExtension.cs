@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.OpenApi.Models;
 using FClub.Api.Filters.Swagger;
 using FClub.Messages.Swagger;
+using Serilog;
 
 namespace FClub.Api.Extensions;
 
@@ -44,6 +45,7 @@ public static class SwaggerExtension
 
             var basePath = AppContext.BaseDirectory;
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            Log.Information("AddCustomSwagger xmlFilename :{xmlFilename}",xmlFilename);
             c.IncludeXmlComments(Path.Combine(basePath, xmlFilename), true);
             c.IncludeXmlComments(Path.Combine(basePath, SwaggerDocs.XmlName), true);
             

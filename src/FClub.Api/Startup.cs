@@ -22,7 +22,6 @@ public class Startup
         services.AddResponseCaching();
         services.AddEndpointsApiExplorer();
         services.AddCustomSwagger();
-        
         services.AddMvc();
 
         services.AddControllers();
