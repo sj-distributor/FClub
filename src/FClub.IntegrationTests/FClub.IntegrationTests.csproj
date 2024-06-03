@@ -33,6 +33,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
+      <Content Include="obj\FClub.Messages.xml" />
     </ItemGroup>
 
 </Project>

@@ -22,10 +22,7 @@ public class Startup
 
         services.AddControllers();
         
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "FClub", Version = "v1" });
-        });
+        services.AddCustomSwagger();
         
         services.AddHangfireInternal(Configuration);
     }

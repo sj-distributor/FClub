@@ -10,4 +10,9 @@
       <ProjectReference Include="..\FClub.Core\FClub.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="bin\Debug\net7.0\FClub.Messages.xml" />
+      <Content Include="obj\Debug\net7.0\FClub.Messages.xml" />
+    </ItemGroup>
+
 </Project>

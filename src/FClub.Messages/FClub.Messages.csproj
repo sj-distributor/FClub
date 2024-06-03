@@ -11,4 +11,10 @@
       <PackageReference Include="NSubstitute" Version="5.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="bin\Debug\net7.0\FClub.Messages.xml" />
+      <Content Include="obj\Debug\FClub.Messages.xml" />
+      <Content Include="obj\Debug\net7.0\FClub.Messages.xml" />
+    </ItemGroup>
+
 </Project>

@@ -11,17 +11,24 @@
       <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
       <PackageReference Include="Correlate.AspNetCore" Version="4.0.0" />
       <PackageReference Include="Correlate.DependencyInjection" Version="4.0.0" />
+      <PackageReference Include="FluentValidation" Version="11.5.2" />
       <PackageReference Include="Hangfire" Version="1.8.12" />
       <PackageReference Include="Hangfire.AspNetCore" Version="1.8.12" />
       <PackageReference Include="Hangfire.Correlate" Version="2.0.0" />
       <PackageReference Include="Mediator.Net" Version="4.7.0" />
       <PackageReference Include="Mediator.Net.Autofac" Version="4.7.0" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\FClub.Core\FClub.Core.csproj" />
       <ProjectReference Include="..\FClub.Messages\FClub.Messages.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="obj\Debug\net7.0\FClub.Api.xml" />
+      <Content Include="obj\Debug\SugarTalk.Api.xml" />
     </ItemGroup>
 
 </Project>
