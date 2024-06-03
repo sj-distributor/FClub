@@ -17,13 +17,15 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddCorrelate(options => options.RequestHeaders = FClubConstants.CorrelationIdHeaders);
+        services.AddHttpContextAccessor();
+        services.AddMemoryCache();
+        services.AddResponseCaching();
+        services.AddEndpointsApiExplorer();
+        services.AddCustomSwagger();
         
         services.AddMvc();
 
         services.AddControllers();
-        
-        services.AddCustomSwagger();
-        
         services.AddHangfireInternal(Configuration);
     }
     
