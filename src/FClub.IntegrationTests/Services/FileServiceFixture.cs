@@ -1,8 +1,8 @@
-using FClub.IntegrationTests.TestBaseClasses;
+using Xunit;
+using Mediator.Net;
 using FClub.Messages.Commands;
 using FClub.Messages.Dto.Upload;
-using Mediator.Net;
-using Xunit;
+using FClub.IntegrationTests.TestBaseClasses;
 
 namespace FClub.IntegrationTests.Services;
 

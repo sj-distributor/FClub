@@ -2,7 +2,7 @@ namespace FClub.Messages.Enums;
 
 public enum FileType
 {
-    Input = 0,
+    /*Input = 0,
     
-    Response = 1
+    Response = 1*/
 }

@@ -1,8 +1,8 @@
 using Mediator.Net;
 using FClub.Core.Data;
 using Mediator.Net.Context;
-using Mediator.Net.Contracts;
 using Mediator.Net.Pipeline;
+using Mediator.Net.Contracts;
 
 namespace FClub.Core.Middlewares.UnitOfWork;
 

@@ -1,8 +1,8 @@
-﻿using System.Runtime.ExceptionServices;
-using FClub.Core.Data;
+﻿using FClub.Core.Data;
 using Mediator.Net.Context;
-using Mediator.Net.Contracts;
 using Mediator.Net.Pipeline;
+using Mediator.Net.Contracts;
+using System.Runtime.ExceptionServices;
 
 namespace FClub.Core.Middlewares.UnitOfWork;
 

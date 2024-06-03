@@ -1,8 +1,8 @@
 using System.Net;
 using FluentValidation;
+using FClub.Messages.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using FClub.Messages.Responses;
 
 namespace FClub.Api.Filters;
 

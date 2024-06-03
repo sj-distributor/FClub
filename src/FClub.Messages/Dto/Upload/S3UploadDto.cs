@@ -2,7 +2,7 @@ namespace FClub.Messages.Dto.Upload;
 
 public class S3UploadDto
 {
-    public string? AccessKey { get; set; }
+    /*public string? AccessKey { get; set; }
     
     public string? Secret { get; set; }
 
@@ -16,5 +16,5 @@ public class S3UploadDto
     
     public Dictionary<string, string>? Metadata { get; set; }
     
-    public string? Tagging { get; set; }
+    public string? Tagging { get; set; }*/
 }

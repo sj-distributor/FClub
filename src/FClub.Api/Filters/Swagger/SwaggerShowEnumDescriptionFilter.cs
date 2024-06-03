@@ -1,5 +1,5 @@
-using System.ComponentModel;
 using System.Reflection;
+using System.ComponentModel;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 

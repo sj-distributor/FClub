@@ -23,7 +23,6 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddCustomSwagger();
         services.AddMvc();
-
         services.AddControllers();
         services.AddHangfireInternal(Configuration);
     }

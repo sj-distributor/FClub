@@ -1,5 +1,5 @@
-using StackExchange.Redis;
 using FClub.Core.Ioc;
+using StackExchange.Redis;
 using FClub.Core.Settings.Caching;
 
 namespace FClub.Core.Services.Caching;

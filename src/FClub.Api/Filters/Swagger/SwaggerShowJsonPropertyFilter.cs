@@ -1,8 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using System.Reflection;
+using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
+
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace FClub.Api.Filters.Swagger;

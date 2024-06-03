@@ -1,8 +1,8 @@
 using AutoMapper;
 using FClub.Core.Services.Aws;
+using FClub.Core.Services.Jobs;
 using FClub.Core.Services.Ffmpeg;
 using FClub.Core.Services.FileService;
-using FClub.Core.Services.Jobs;
 
 namespace FClub.UnitTests;
 

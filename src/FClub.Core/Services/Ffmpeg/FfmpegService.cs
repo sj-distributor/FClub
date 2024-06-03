@@ -13,7 +13,7 @@ public class FfmpegService : IFfmpegService
 {
     public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoDataList, CancellationToken cancellationToken = default)
     {
-        try
+        /*try
         {
             var outputFileName = $"{Guid.NewGuid()}.mp4";
             var inputFiles = "";
@@ -80,6 +80,7 @@ public class FfmpegService : IFfmpegService
         {
             Log.Error(ex, "Error occurred while combining MP4 videos.");
             return Array.Empty<byte>();
-        }
+        }*/
+        return null;
     }
 }

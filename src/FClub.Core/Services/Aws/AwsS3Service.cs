@@ -1,6 +1,6 @@
 using Amazon.S3;
-using Amazon.S3.Model;
 using FClub.Core.Ioc;
+using Amazon.S3.Model;
 
 namespace FClub.Core.Services.Aws;
 

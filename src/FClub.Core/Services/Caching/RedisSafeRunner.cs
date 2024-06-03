@@ -1,8 +1,8 @@
 using Serilog;
-using StackExchange.Redis;
-using FClub.Core.Ioc;
 using RedLockNet;
+using FClub.Core.Ioc;
 using RedLockNet.SERedis;
+using StackExchange.Redis;
 using RedLockNet.SERedis.Configuration;
 
 namespace FClub.Core.Services.Caching;
@@ -78,7 +78,6 @@ public class RedisSafeRunner : IRedisSafeRunner
 
             await using (redLock)
             {
-                // make sure we got the lock
                 if (redLock.IsAcquired)
                     await logic();
             }
@@ -98,7 +97,6 @@ public class RedisSafeRunner : IRedisSafeRunner
 
             await using (redLock)
             {
-                // make sure we got the lock
                 if (redLock.IsAcquired)
                     return await logic();
             }
