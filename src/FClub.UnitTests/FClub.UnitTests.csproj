@@ -15,4 +15,8 @@
       <Content Include="obj\Debug\net7.0\FClub.Messages.xml" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="NSubstitute" Version="5.0.0" />
+    </ItemGroup>
+
 </Project>
