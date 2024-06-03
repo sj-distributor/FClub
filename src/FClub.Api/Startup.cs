@@ -1,7 +1,6 @@
-using FClub.Api.Extensions;
-using Microsoft.OpenApi.Models;
-using Correlate.DependencyInjection;
 using FClub.Messages;
+using FClub.Api.Extensions;
+using Correlate.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace FClub.Api;

@@ -25,10 +25,5 @@
       <ProjectReference Include="..\FClub.Core\FClub.Core.csproj" />
       <ProjectReference Include="..\FClub.Messages\FClub.Messages.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="obj\Debug\net7.0\FClub.Api.xml" />
-      <Content Include="obj\Debug\SugarTalk.Api.xml" />
-    </ItemGroup>
-
+    
 </Project>

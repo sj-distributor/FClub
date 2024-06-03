@@ -1,8 +1,6 @@
-using FClub.Core.Services.Caching;
 using Mediator.Net;
-using FClub.Messages.Commands;
-using FClub.Messages.Requests;
 using Microsoft.AspNetCore.Mvc;
+using FClub.Core.Services.Caching;
 
 namespace FClub.Api.Controllers;
 
