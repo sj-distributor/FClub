@@ -2,6 +2,7 @@ using FClub.Api.Extensions;
 using Microsoft.OpenApi.Models;
 using Correlate.DependencyInjection;
 using FClub.Messages;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace FClub.Api;
 
@@ -40,7 +41,7 @@ public class Startup
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-            c.RoutePrefix = string.Empty;
+            c.DocExpansion(DocExpansion.None);
         });
         
         app.UseEndpoints(endpoints =>
