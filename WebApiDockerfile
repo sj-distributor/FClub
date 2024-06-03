@@ -3,7 +3,7 @@ FROM registry-vpc.cn-hongkong.aliyuncs.com/wiltechs/sdk:7.0 AS build-env
 USER root
 
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 80
 EXPOSE 443
 
 COPY ./src/FClub.Api ./build/FClub.Api
