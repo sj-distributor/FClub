@@ -45,10 +45,12 @@ public static class SwaggerExtension
 
             var basePath = AppContext.BaseDirectory;
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlName = SwaggerDocs.XmlName;
             
-           
-            Log.Information("AddCustomSwagger IncludeXmlComments: {xmlFilename}",Path.Combine(basePath, xmlFilename));
+            Log.Information("AddCustomSwagger xmlFilename :{xmlFilename}; xmlName: {xmlName} ",xmlFilename, xmlName);
+            Log.Information("AddCustomSwagger IncludeXmlComments: {xmlfilenameurl}, {xmlName}",Path.Combine(basePath, xmlFilename), Path.Combine(basePath, xmlName));
             c.IncludeXmlComments(Path.Combine(basePath, xmlFilename), true);
+            c.IncludeXmlComments(Path.Combine(basePath, xmlName), true);
             
             c.SchemaFilter<SwaggerShowEnumDescriptionFilter>();
         });

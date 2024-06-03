@@ -5,8 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <DocumentationFile>bin\Debug\net7.0\FClub.Messages.xml</DocumentationFile>
-        <DocumentationFile>bin\Debug\net7.0\FClub.Api.xml</DocumentationFile>
+        <DocumentationFile></DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

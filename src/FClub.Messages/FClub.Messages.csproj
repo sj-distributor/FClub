@@ -4,17 +4,12 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Mediator.Net" Version="4.7.0" />
-      <PackageReference Include="NSubstitute" Version="5.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="bin\Debug\net7.0\FClub.Messages.xml" />
-      <Content Include="obj\Debug\FClub.Messages.xml" />
-      <Content Include="obj\Debug\net7.0\FClub.Messages.xml" />
+        <PackageReference Include="Mediator.Net.Autofac" Version="4.7.0" />
     </ItemGroup>
 
 </Project>
