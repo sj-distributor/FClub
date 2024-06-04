@@ -28,8 +28,6 @@ public class FileServiceFixture : FileFixtureBase
                    
                 }
             };
-
-            var response = await mediator.SendAsync<CombineMp4VideoCommand, CombineMp4VideoResponse>(command);
         });
     }*/
 }
