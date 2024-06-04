@@ -16,6 +16,9 @@ public partial class FileService
     {
         var byteArrayList = await ConvertUrlsToByteArrays(urls);
 
+        foreach (var item in byteArrayList)
+            Log.Information($"CombineMp4VideosAsync url byte: {item.Length}", item.Length);
+        
         var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
 
         Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
