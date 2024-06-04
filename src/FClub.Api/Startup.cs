@@ -17,14 +17,15 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddCorrelate(options => options.RequestHeaders = FClubConstants.CorrelationIdHeaders);
-        services.AddHttpContextAccessor();
+        services.AddControllers().AddNewtonsoftJson();
+        services.AddHttpClientInternal();
         services.AddMemoryCache();
         services.AddResponseCaching();
+        services.AddHealthChecks();
         services.AddEndpointsApiExplorer();
+        services.AddHttpContextAccessor();
         services.AddCustomSwagger();
-        services.AddMvc();
-        services.AddControllers();
-        services.AddHangfireInternal(Configuration);
+        services.AddCorsPolicy(Configuration);
     }
     
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
