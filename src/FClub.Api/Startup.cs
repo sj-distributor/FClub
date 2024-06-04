@@ -1,3 +1,4 @@
+using Correlate.AspNetCore;
 using Serilog;
 using FClub.Messages;
 using FClub.Api.Extensions;
@@ -40,11 +41,16 @@ public class Startup
             });
         }
         app.UseSerilogRequestLogging();
+        app.UseCorrelate();
         app.UseRouting();
+        app.UseCors();
+        app.UseResponseCaching();
+        app.UseHangfireInternal();
         
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+            endpoints.MapHealthChecks("health");
         });
     }
 }
