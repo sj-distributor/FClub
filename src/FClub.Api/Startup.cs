@@ -3,6 +3,7 @@ using Serilog;
 using FClub.Messages;
 using FClub.Api.Extensions;
 using Correlate.DependencyInjection;
+using FClub.Api.Filters;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace FClub.Api;
@@ -28,6 +29,12 @@ public class Startup
         services.AddHttpContextAccessor();
         services.AddCustomSwagger();
         services.AddCorsPolicy(Configuration);
+        
+        services.AddMvc(options =>
+        {
+            options.Filters.Add<GlobalExceptionFilter>();
+        });
+        
         services.AddHangfireInternal(Configuration);
     }
     
