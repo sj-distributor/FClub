@@ -6,7 +6,7 @@ namespace FClub.Core.Services.Ffmpeg;
 
 public interface IFfmpegService : IScopedDependency
 {
-    Task<byte[]> CombineMp4VideosAsync(List<byte[]>  videoUrls, CancellationToken cancellationToken = default);
+    Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoUrls, CancellationToken cancellationToken = default);
 }
 
 public class FfmpegService : IFfmpegService
