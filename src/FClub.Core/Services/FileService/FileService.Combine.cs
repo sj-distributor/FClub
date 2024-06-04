@@ -1,6 +1,4 @@
-using Amazon;
 using Serilog;
-using Amazon.S3;
 using FClub.Messages.Enums;
 using FClub.Core.Domain.File;
 using FClub.Messages.Commands;
