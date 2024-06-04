@@ -18,7 +18,7 @@ public partial class FileService
 
         var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
 
-        Log.Information($"CombineMp4VideosAsync content: @{content}", content.Length);
+        Log.Information($"CombineMp4VideosAsync content: {content}", content.Length);
         
         var url = await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
 
