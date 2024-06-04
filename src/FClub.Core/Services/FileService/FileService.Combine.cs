@@ -15,7 +15,7 @@ public partial class FileService
         string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var byteArrayList = await ConvertUrlsToByteArrays(urls);
-        
+
         var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
 
         Log.Information($"CombineMp4VideosAsync content: @{content}", content.Length);
