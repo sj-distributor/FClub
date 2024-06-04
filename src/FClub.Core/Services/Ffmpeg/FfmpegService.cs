@@ -13,12 +13,12 @@ public class FfmpegService : IFfmpegService
 {
     public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoDataList, CancellationToken cancellationToken = default)
     {
+        var outputFileName = $"{Guid.NewGuid()}.mp4";
+        var inputFiles = "";
+        var downloadedVideoFiles = new List<string>();
+        
         try
         {
-            var outputFileName = $"{Guid.NewGuid()}.mp4";
-            var inputFiles = "";
-            
-            var downloadedVideoFiles = new List<string>();
             foreach (var videoData in videoDataList)
             {
                 var videoFileName = $"{Guid.NewGuid()}.mp4";

@@ -1,3 +1,4 @@
+using Serilog;
 using FClub.Messages;
 using FClub.Api.Extensions;
 using Correlate.DependencyInjection;
@@ -38,7 +39,7 @@ public class Startup
                 c.DocExpansion(DocExpansion.None);
             });
         }
-
+        app.UseSerilogRequestLogging();
         app.UseRouting();
         
         app.UseEndpoints(endpoints =>
