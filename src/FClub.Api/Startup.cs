@@ -28,6 +28,7 @@ public class Startup
         services.AddHttpContextAccessor();
         services.AddCustomSwagger();
         services.AddCorsPolicy(Configuration);
+        services.AddHangfireInternal(Configuration);
     }
     
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
