@@ -1,4 +1,4 @@
-/*create table if not exists `file`
+create table if not exists `file`
 (
     `id` int primary key auto_increment,
     `url` text null,
@@ -21,4 +21,4 @@ create table if not exists `file_task`
     `id` varchar(36) primary key,
     `status` int not null,
     `created_date` datetime(3) not null
-)charset=utf8mb4;*/
+)charset=utf8mb4;

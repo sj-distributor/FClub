@@ -5,21 +5,20 @@ using FClub.Messages.Enums;
 using FClub.Core.Domain.File;
 using FClub.Messages.Commands;
 using FClub.Messages.Requests;
-using FClub.Messages.Dto.Upload;
 using File = FClub.Core.Domain.File.File;
 
 namespace FClub.Core.Services.FileService;
 
 public partial class FileService
 {
-    /*public async Task<string> CombineMp4VideosAsync(
-        string filePath, S3UploadDto s3UploadDto, List<string> urls, CancellationToken cancellationToken)
+    public async Task<string> CombineMp4VideosAsync(
+        string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var byteArrayList = await ConvertUrlsToByteArrays(urls);
 
         var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
 
-        var url = await S3UploadAsync(s3UploadDto, filePath, content, cancellationToken).ConfigureAwait(false);
+        var url = await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
 
         return url;
     }
@@ -47,7 +46,7 @@ public partial class FileService
 
         await _fileDataProvider.AddFilesAsync(files, cancellationToken).ConfigureAwait(false);
 
-        _backgroundJobClient.Enqueue(() => ProcessCombineFileTaskAsync(task.Id, command.S3UploadDto, command.FilePath, command.Urls, cancellationToken));
+        _backgroundJobClient.Enqueue(() => ProcessCombineFileTaskAsync(task.Id, command.FilePath, command.Urls, cancellationToken));
 
         return new CombineMp4VideoTaskResponse
         {
@@ -66,7 +65,7 @@ public partial class FileService
         };
     }
 
-    public async Task ProcessCombineFileTaskAsync(Guid taskId, S3UploadDto s3Upload, string filePath, List<string> urls, CancellationToken cancellationToken)
+    public async Task ProcessCombineFileTaskAsync(Guid taskId, string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var task = await GetCombineTaskAsync(taskId, cancellationToken).ConfigureAwait(false);
         var file = new File
@@ -78,19 +77,17 @@ public partial class FileService
         await SafelyCombineFileAsync(task, file, async () =>
         {
             await MarkCombineTaskAsInProgressAsync(task, cancellationToken).ConfigureAwait(false);
-            await CombineTaskAsync(file, filePath, s3Upload, urls, cancellationToken).ConfigureAwait(false);
+            await CombineTaskAsync(file, filePath, urls, cancellationToken).ConfigureAwait(false);
             await CheckAndUpdateCombineTaskAsync(task, file, cancellationToken).ConfigureAwait(false);
             
         }, cancellationToken).ConfigureAwait(false);
     }
     
-    public async Task<string> S3UploadAsync(S3UploadDto s3UploadDto, string filePath, byte[] fileContent, CancellationToken cancellationToken)
+    public async Task<string> S3UploadAsync(string filePath, byte[] fileContent, CancellationToken cancellationToken)
     {
-        var amazonS3Client = new AmazonS3Client(s3UploadDto.AccessKey, s3UploadDto.Secret, RegionEndpoint.GetBySystemName(s3UploadDto.Region)); 
+        await _awsS3Service.UploadFileAsync(filePath, fileContent, cancellationToken).ConfigureAwait(false);
         
-        await _awsS3Service.UploadFileAsync(amazonS3Client, s3UploadDto.Bucket, filePath, fileContent, cancellationToken).ConfigureAwait(false);
-        
-        return await _awsS3Service.GeneratePresignedUrlAsync(amazonS3Client, s3UploadDto.Bucket, filePath).ConfigureAwait(false);
+        return await _awsS3Service.GeneratePresignedUrlAsync(filePath).ConfigureAwait(false);
     }
 
     public static async Task<List<byte[]>> ConvertUrlsToByteArrays(List<string> urlList)
@@ -130,9 +127,9 @@ public partial class FileService
         await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
     }
     
-    public async Task CombineTaskAsync(File file, string filePath, S3UploadDto s3UploadDto, List<string> urls, CancellationToken cancellationToken)
+    public async Task CombineTaskAsync(File file, string filePath, List<string> urls, CancellationToken cancellationToken)
     {
-        file.Url = await CombineMp4VideosAsync(filePath, s3UploadDto, urls, cancellationToken).ConfigureAwait(false);
+        file.Url = await CombineMp4VideosAsync(filePath, urls, cancellationToken).ConfigureAwait(false);
 
         await _fileDataProvider.AddFileAsync(file, cancellationToken).ConfigureAwait(false);
     }
@@ -166,5 +163,5 @@ public partial class FileService
             
             Log.Error(ex, "Error on translation");
         }
-    }*/
+    }
 }

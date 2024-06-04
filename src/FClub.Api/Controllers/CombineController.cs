@@ -1,6 +1,7 @@
 using Mediator.Net;
+using FClub.Messages.Commands;
+using FClub.Messages.Requests;
 using Microsoft.AspNetCore.Mvc;
-
 namespace FClub.Api.Controllers;
 
 [ApiController]
@@ -14,7 +15,7 @@ public class CombineController : ControllerBase
         _mediator = mediator;
     }
 
-    /*[HttpPost]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CombineMp4VideoResponse))]
     public async Task<IActionResult> CombineMp4VideosAsync([FromBody] CombineMp4VideoCommand command)
     {
@@ -43,5 +44,5 @@ public class CombineController : ControllerBase
         }).ConfigureAwait(false);
 
         return Ok(response);
-    }*/
+    }
 }

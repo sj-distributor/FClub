@@ -1,5 +1,7 @@
+using Amazon;
 using Autofac;
 using Serilog;
+using Amazon.S3;
 using Mediator.Net;
 using FClub.Core.Ioc;
 using FClub.Core.Data;
@@ -13,6 +15,7 @@ using Mediator.Net.Middlewares.Serilog;
 using Microsoft.Extensions.Configuration;
 using FClub.Core.Middlewares.UnifyResponse;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using FClub.Core.Settings.Aws;
 using Module = Autofac.Module;
 
 namespace FClub.Core;
@@ -39,6 +42,7 @@ public class FClubModule : Module
         RegisterDatabase(builder);
         RegisterAutoMapper(builder);
         RegisterCaching(builder);
+        RegisterAwsS3Client(builder);
     }
 
     private void RegisterDependency(ContainerBuilder builder)
@@ -117,5 +121,14 @@ public class FClubModule : Module
             var pool = cfx.Resolve<IRedisConnectionPool>();
             return pool.GetConnection();
         }).ExternallyOwned();
+    }
+    
+    private void RegisterAwsS3Client(ContainerBuilder builder)
+    {
+        builder.Register(c =>
+        {
+            var settings = c.Resolve<AwsS3Settings>();
+            return new AmazonS3Client(settings.AccessKeyId, settings.AccessKeySecret, RegionEndpoint.GetBySystemName(settings.Region));
+        }).AsSelf().InstancePerLifetimeScope();
     }
 }

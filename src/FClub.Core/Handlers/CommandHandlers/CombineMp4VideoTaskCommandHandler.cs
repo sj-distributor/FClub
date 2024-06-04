@@ -1,6 +1,6 @@
-using FClub.Messages.Commands;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
+using FClub.Messages.Commands;
 using FClub.Core.Services.FileService;
 
 namespace FClub.Core.Handlers.CommandHandlers;
@@ -16,8 +16,6 @@ public class CombineMp4VideoTaskCommandHandler : ICommandHandler<CombineMp4Video
 
     public async Task<CombineMp4VideoTaskResponse> Handle(IReceiveContext<CombineMp4VideoTaskCommand> context, CancellationToken cancellationToken)
     {
-        /*return await _fileService.CombineMp4VideoTaskAsync(context.Message, cancellationToken).ConfigureAwait(false);*/
-
-        return new CombineMp4VideoTaskResponse();
+        return await _fileService.CombineMp4VideoTaskAsync(context.Message, cancellationToken).ConfigureAwait(false);
     }
 }
