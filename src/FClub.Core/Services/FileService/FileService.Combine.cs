@@ -12,12 +12,12 @@ public partial class FileService
     public async Task<string> CombineMp4VideosAsync(
         string filePath, List<string> urls, CancellationToken cancellationToken)
     {
-        var byteArrayList = await ConvertUrlsToByteArrays(urls);
+        /*var byteArrayList = await ConvertUrlsToByteArrays(urls);
 
         foreach (var item in byteArrayList)
-            Log.Information($"CombineMp4VideosAsync url byte: {item.Length}", item.Length);
+            Log.Information($"CombineMp4VideosAsync url byte: {item.Length}", item.Length);*/
         
-        var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
+        var content = await _ffmpegService.CombineMp4VideosAsync(urls, cancellationToken).ConfigureAwait(false);
 
         Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
         
