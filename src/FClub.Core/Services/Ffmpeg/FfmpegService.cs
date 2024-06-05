@@ -50,8 +50,21 @@ public class FfmpegService : IFfmpegService
                     Arguments = combineArguments
                 };
             
-                proc.OutputDataReceived += (_, e) => Log.Information("Combine audio, {@Output}", e);
-                proc.ErrorDataReceived += (_, e) => Log.Error("FFmpeg Error: {@Error}", e.Data);
+                proc.OutputDataReceived += (_, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                    {
+                        Log.Information("FFmpeg Output: {Output}", e.Data);
+                    }
+                };
+                
+                proc.ErrorDataReceived += (_, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                    {
+                        Log.Error("FFmpeg Error: {Error}", e.Data);
+                    }
+                };
                 
                 proc.Start();
                 proc.BeginErrorReadLine();
