@@ -3,6 +3,7 @@ using FClub.Messages.Enums;
 using FClub.Core.Domain.File;
 using FClub.Messages.Commands;
 using FClub.Messages.Requests;
+using Newtonsoft.Json;
 using File = FClub.Core.Domain.File.File;
 
 namespace FClub.Core.Services.FileService;
@@ -12,18 +13,26 @@ public partial class FileService
     public async Task<string> CombineMp4VideosAsync(
         string filePath, List<string> urls, CancellationToken cancellationToken)
     {
-        var byteArrayList = await ConvertUrlsToByteArrays(urls);
+        try
+        {
+            var byteArrayList = await ConvertUrlsToByteArrays(urls);
 
-        foreach (var item in byteArrayList)
-            Log.Information($"CombineMp4VideosAsync url byte: {item.Length}", item.Length);
+            foreach (var item in byteArrayList)
+                Log.Information($"CombineMp4VideosAsync url byte: {item.Length}", item.Length);
         
-        var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
+            var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
 
-        Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
+            Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
         
-        var url = await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
-
-        return url;
+            var url = await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
+            
+            return url;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, @"CombineMp4VideosAsync url upload failed, {urls}", JsonConvert.SerializeObject(urls)); 
+            throw;
+        }
     }
 
     public async Task<CombineMp4VideoTaskResponse> CombineMp4VideoTaskAsync(
