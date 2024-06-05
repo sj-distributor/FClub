@@ -48,13 +48,13 @@ public class FfmpegService : IFfmpegService
                     Arguments = combineArguments                               
                 };                               
                                            
-                proc.OutputDataReceived += (_, e) =>                               
-                {                               
-                    if (!string.IsNullOrEmpty(e.Data))                               
-                    {                               
-                        Log.Information("FFmpeg Output: {Output}", e.Data);                     
-                    }                               
-                };                               
+                proc.ErrorDataReceived += (_, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                    {
+                        Log.Information("FFmpeg Output: {Output}", e.Data);
+                    }
+                };     
                                                
                 proc.Start();
                 proc.BeginErrorReadLine();
