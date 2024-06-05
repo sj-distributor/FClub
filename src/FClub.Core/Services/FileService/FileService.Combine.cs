@@ -15,12 +15,18 @@ public partial class FileService
     {
         try
         {
-            var byteArrayList = await ConvertUrlsToByteArrays(urls);
+            var awsUrls = new List<string>();
 
-            foreach (var item in byteArrayList)
-                Log.Information($"CombineMp4VideosAsync url byte: {item.Length}", item.Length);
+            foreach (var item in urls)
+            {
+                var awsUrl = await _awsS3Service.GeneratePresignedUrlAsync(item).ConfigureAwait(false);
+                
+                awsUrls.Add(awsUrl);
+            }
+            
+            /* var byteArrayList = await ConvertUrlsToByteArrays(awsUrls);*/
         
-            var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
+            var content = await _ffmpegService.CombineMp4VideosAsync(awsUrls, cancellationToken).ConfigureAwait(false);
 
             Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
         
