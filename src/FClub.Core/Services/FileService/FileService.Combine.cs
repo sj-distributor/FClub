@@ -19,7 +19,7 @@ public partial class FileService
 
             foreach (var item in urls)
             {
-                var awsUrl = await _awsS3Service.GeneratePresignedUrlAsync(item).ConfigureAwait(false);
+                var awsUrl = await _awsS3Service.GeneratePresignedUrlAsync(item, 5).ConfigureAwait(false);
                 
                 awsUrls.Add(awsUrl);
             }
@@ -29,10 +29,10 @@ public partial class FileService
             var content = await _ffmpegService.CombineMp4VideosAsync(awsUrls, cancellationToken).ConfigureAwait(false);
 
             Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
-        
-            var url = await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
+
+            if (content.Length == 0) return "Combine Failed";
             
-            return url;
+            return await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

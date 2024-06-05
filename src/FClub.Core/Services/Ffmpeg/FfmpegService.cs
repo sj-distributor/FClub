@@ -82,12 +82,20 @@ public class FfmpegService : IFfmpegService
             }
 
             Log.Error("Failed to generate the combined video file.");
+            
             return Array.Empty<byte>();
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while combining MP4 videos.");
             return Array.Empty<byte>();
+        }
+        finally
+        {
+            Log.Information("Combine file finally deleting files");
+
+            if (File.Exists(outputFileName))
+                File.Delete(outputFileName);
         }
     }
     
