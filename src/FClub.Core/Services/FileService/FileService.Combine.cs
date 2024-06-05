@@ -19,14 +19,17 @@ public partial class FileService
 
             foreach (var item in urls)
             {
-                var awsUrl = await _awsS3Service.GeneratePresignedUrlAsync(item, 5).ConfigureAwait(false);
+                if (item.StartsWith("http")) continue;
                 
+                var awsUrl = await _awsS3Service.GeneratePresignedUrlAsync(item, 5).ConfigureAwait(false);
                 awsUrls.Add(awsUrl);
             }
             
-            /* var byteArrayList = await ConvertUrlsToByteArrays(awsUrls);*/
+            urls.RemoveAll(x => !x.StartsWith("http"));
+            
+            urls.AddRange(awsUrls);
         
-            var content = await _ffmpegService.CombineMp4VideosAsync(awsUrls, cancellationToken).ConfigureAwait(false);
+            var content = await _ffmpegService.CombineMp4VideosAsync(urls, cancellationToken).ConfigureAwait(false);
 
             Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
 

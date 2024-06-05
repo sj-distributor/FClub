@@ -15,28 +15,24 @@ public class FfmpegService : IFfmpegService
     {
         var outputFileName = $"{Guid.NewGuid()}.mp4";
         var inputFiles = "";
-        var downloadedVideoFiles = new List<string>();
+        var combineFileCount = 0;
         
         try
         {
             foreach (var videoData in videoDataList)
             {
-                /*var videoFileName = $"{Guid.NewGuid()}.mp4";
-                await File.WriteAllBytesAsync(videoFileName, videoData, cancellationToken).ConfigureAwait(false);
-                downloadedVideoFiles.Add(videoFileName);
-                inputFiles += $"-i \"{videoFileName}\" ";*/
-                downloadedVideoFiles.Add(videoData);
                 inputFiles += $"-i \"{videoData}\" ";
+                combineFileCount++;
             }
 
             var filterComplex = $"-filter_complex \"";
 
-            for (int i = 0; i < downloadedVideoFiles.Count; i++)
+            for (int i = 0; i < combineFileCount; i++)
             {
                 filterComplex += $"[{i}:v:0][{i}:a:0]";
             }
             
-            filterComplex += $"concat=n={downloadedVideoFiles.Count}:v=1:a=1[outv][outa]\"";
+            filterComplex += $"concat=n={combineFileCount}:v=1:a=1[outv][outa]\"";
 
             var combineArguments = $"{inputFiles} {filterComplex} -map \"[outv]\" -map \"[outa]\" {outputFileName}";
             
@@ -70,11 +66,6 @@ public class FfmpegService : IFfmpegService
             if (File.Exists(outputFileName))
             {
                 var resultBytes = await File.ReadAllBytesAsync(outputFileName, cancellationToken).ConfigureAwait(false);
-
-                /*foreach (var fileName in downloadedVideoFiles)
-                {
-                    File.Delete(fileName);
-                }*/
                 
                 File.Delete(outputFileName);
 
@@ -123,7 +114,7 @@ public class FfmpegService : IFfmpegService
             }
             
             filterComplex += $"concat=n={downloadedVideoFiles.Count}:v=1:a=1[outv][outa]\"";
-
+            
             var combineArguments = $"{inputFiles} {filterComplex} -map \"[outv]\" -map \"[outa]\" {outputFileName}";
             
             Log.Information("Combine command arguments: {combineArguments}", combineArguments);
@@ -161,7 +152,7 @@ public class FfmpegService : IFfmpegService
                 {
                     File.Delete(fileName);
                 }
-                
+
                 File.Delete(outputFileName);
 
                 return resultBytes;
@@ -174,6 +165,19 @@ public class FfmpegService : IFfmpegService
         {
             Log.Error(ex, "Error occurred while combining MP4 videos.");
             return Array.Empty<byte>();
+        }
+        finally
+        {
+            Log.Information("Combine file finally deleting files");
+
+            if (File.Exists(outputFileName))
+                File.Delete(outputFileName);
+
+            foreach (var fileName in downloadedVideoFiles)
+            {
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+            }
         }
     }*/
 }
