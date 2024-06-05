@@ -6,12 +6,12 @@ namespace FClub.Core.Services.Ffmpeg;
 
 public interface IFfmpegService : IScopedDependency
 {
-    Task<byte[]> CombineMp4VideosAsync(List<string> videoUrls, CancellationToken cancellationToken = default);
+    Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoUrls, CancellationToken cancellationToken = default);
 }
 
 public class FfmpegService : IFfmpegService
 {
-     public async Task<byte[]> CombineMp4VideosAsync(List<string> videoDataList, CancellationToken cancellationToken = default)
+     /*public async Task<byte[]> CombineMp4VideosAsync(List<string> videoDataList, CancellationToken cancellationToken = default)
     {
         var outputFileName = $"{Guid.NewGuid()}.mp4";
         var inputFiles = "";
@@ -88,9 +88,9 @@ public class FfmpegService : IFfmpegService
             if (File.Exists(outputFileName))
                 File.Delete(outputFileName);
         }
-    }
+    }*/
     
-    /*public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoDataList, CancellationToken cancellationToken = default)
+    public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoDataList, CancellationToken cancellationToken = default)
     {
         var outputFileName = $"{Guid.NewGuid()}.mp4";
         var inputFiles = "";
@@ -179,5 +179,5 @@ public class FfmpegService : IFfmpegService
                     File.Delete(fileName);
             }
         }
-    }*/
+    }
 }
