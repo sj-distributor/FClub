@@ -16,14 +16,17 @@ FROM mcr.microsoft.com/dotnet/aspnet:7.0
 USER root
 
 # ffmpeg
-RUN apt-get update && apt-get install -y bzip2 make gcc yasm libopencore-amrnb-dev libopencore-amrwb-dev wget
+RUN apt-get update && apt-get install -y bzip2 make gcc yasm libopencore-amrnb-dev libopencore-amrwb-dev wget xz-utils
 
-RUN wget https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2 && \
- tar -jxvf ffmpeg-snapshot.tar.bz2 && \
-cd ffmpeg && \
- ./configure --enable-gpl --enable-libopencore-amrnb --enable-libopencore-amrwb --prefix=/usr/local/ffmpeg --enable-version3 && \
-make -j8 && make install && \
- ln -s /usr/local/ffmpeg/bin/ffmpeg /usr/local/bin/
+RUN wget https://ffmpeg.org/releases/ffmpeg-7.0.tar.xz && \
+    tar -xJf ffmpeg-7.0.tar.xz && \
+    cd ffmpeg-7.0 && \
+    ./configure --enable-gpl --enable-libopencore-amrnb --enable-libopencore-amrwb --prefix=/usr/local/ffmpeg --enable-version3 && \
+    make -j$(nproc) && \
+    make install && \
+    ln -s /usr/local/ffmpeg/bin/ffmpeg /usr/local/bin/ && \
+    cd .. && \
+    rm -rf ffmpeg-7.0 ffmpeg-7.0.tar.xz
 
 WORKDIR /app
 COPY --from=build-env /app/out .
