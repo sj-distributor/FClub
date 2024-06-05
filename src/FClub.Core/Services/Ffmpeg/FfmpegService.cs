@@ -51,7 +51,8 @@ public class FfmpegService : IFfmpegService
                 };
             
                 proc.OutputDataReceived += (_, e) => Log.Information("Combine audio, {@Output}", e);
-
+                proc.ErrorDataReceived += (_, e) => Log.Error("FFmpeg Error: {@Error}", e.Data);
+                
                 proc.Start();
                 proc.BeginErrorReadLine();
                 proc.BeginOutputReadLine();
