@@ -29,9 +29,9 @@ public partial class FileService
             
             urls.AddRange(awsUrls);
             
-            var byteArrayList = await ConvertUrlsToByteArrays(urls);
+            /*var byteArrayList = await ConvertUrlsToByteArrays(urls);*/
         
-            var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
+            var content = await _ffmpegService.CombineMp4VideosAsync(urls, cancellationToken).ConfigureAwait(false);
 
             Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
 
