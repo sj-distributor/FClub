@@ -6,91 +6,12 @@ namespace FClub.Core.Services.Ffmpeg;
 
 public interface IFfmpegService : IScopedDependency
 {
-    Task<byte[]> CombineMp4VideosAsync(List<string> videoUrls, CancellationToken cancellationToken = default);
+    Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoUrls, CancellationToken cancellationToken = default);
 }
 
 public class FfmpegService : IFfmpegService
 {
-     public async Task<byte[]> CombineMp4VideosAsync(List<string> videoDataList, CancellationToken cancellationToken = default)
-    {
-        var outputFileName = $"{Guid.NewGuid()}.mp4";
-        var inputFiles = "";
-        var combineFileCount = 0;
-        
-        try
-        {
-            foreach (var videoData in videoDataList)
-            {
-                inputFiles += $"-i \"{videoData}\" ";
-                combineFileCount++;
-            }
-
-            var filterComplex = $"-filter_complex \"";
-
-            for (int i = 0; i < combineFileCount; i++)
-            {
-                filterComplex += $"[{i}:v:0][{i}:a:0]";
-            }
-            
-            filterComplex += $"concat=n={combineFileCount}:v=1:a=1[outv][outa]\"";
-
-            var combineArguments = $"{inputFiles} {filterComplex} -map \"[outv]\" -map \"[outa]\" {outputFileName}";
-            
-            Log.Information("Combine command arguments: {combineArguments}", combineArguments);
-            
-            using (var proc = new Process())
-            {
-                proc.StartInfo = new ProcessStartInfo
-                {
-                    FileName = "ffmpeg",
-                    RedirectStandardError = true,                               
-                    RedirectStandardOutput = true,                               
-                    Arguments = combineArguments                               
-                };                               
-                                           
-                proc.ErrorDataReceived += (_, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        Log.Information("FFmpeg Output: {Output}", e.Data);
-                    }
-                };     
-                                               
-                proc.Start();
-                proc.BeginErrorReadLine();
-                proc.BeginOutputReadLine();
-
-                await proc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-            }
-            
-            if (File.Exists(outputFileName))
-            {
-                var resultBytes = await File.ReadAllBytesAsync(outputFileName, cancellationToken).ConfigureAwait(false);
-                
-                File.Delete(outputFileName);
-
-                return resultBytes;
-            }
-
-            Log.Error("Failed to generate the combined video file.");
-            
-            return Array.Empty<byte>();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Error occurred while combining MP4 videos.");
-            return Array.Empty<byte>();
-        }
-        finally
-        {
-            Log.Information("Combine file finally deleting files");
-
-            if (File.Exists(outputFileName))
-                File.Delete(outputFileName);
-        }
-    }
-    
-    /*public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoDataList, CancellationToken cancellationToken = default)
+    public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoDataList, CancellationToken cancellationToken = default)
     {
         var outputFileName = $"{Guid.NewGuid()}.mp4";
         var inputFiles = "";
@@ -179,5 +100,5 @@ public class FfmpegService : IFfmpegService
                     File.Delete(fileName);
             }
         }
-    }*/
+    }
 }

@@ -21,7 +21,7 @@ public class File : IEntity, IHasCreatedFields
     public FileType Type { get; set; }
 
     [Column("completed_setting_id")]
-    public int CompletedSettingId { get; set; }
+    public int UploadSettingId { get; set; }
 
     [Column("created_date")]
     public DateTimeOffset CreatedDate { get; set; }

@@ -1,9 +1,9 @@
 using Serilog;
+using Newtonsoft.Json;
 using FClub.Messages.Enums;
 using FClub.Core.Domain.File;
 using FClub.Messages.Commands;
 using FClub.Messages.Requests;
-using Newtonsoft.Json;
 using File = FClub.Core.Domain.File.File;
 
 namespace FClub.Core.Services.FileService;
@@ -29,15 +29,17 @@ public partial class FileService
             
             urls.AddRange(awsUrls);
             
-            /*var byteArrayList = await ConvertUrlsToByteArrays(urls);*/
-        
-            var content = await _ffmpegService.CombineMp4VideosAsync(urls, cancellationToken).ConfigureAwait(false);
+            var byteArrayList = await ConvertUrlsToByteArraysAsync(urls, cancellationToken).ConfigureAwait(false);
+
+            var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
 
             Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
 
             if (content.Length == 0) return "Combine Failed";
             
-            return await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
+            var responseUrl = await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
+            
+            return responseUrl;
         }
         catch (Exception ex)
         {
@@ -65,7 +67,7 @@ public partial class FileService
         
         await _fileDataProvider.AddFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
 
-        var files = command.Urls.Select(url => new File { Url = url, TaskId = task.Id, Type = FileType.Input, CompletedSettingId = fileSetting.Id }).ToList();
+        var files = command.Urls.Select(url => new File { Url = url, TaskId = task.Id, Type = FileType.Input, UploadSettingId = fileSetting.Id }).ToList();
 
         await _fileDataProvider.AddFilesAsync(files, cancellationToken).ConfigureAwait(false);
 
@@ -113,17 +115,15 @@ public partial class FileService
         return await _awsS3Service.GeneratePresignedUrlAsync(filePath).ConfigureAwait(false);
     }
 
-    public static async Task<List<byte[]>> ConvertUrlsToByteArrays(List<string> urlList)
+    public async Task<List<byte[]>> ConvertUrlsToByteArraysAsync(List<string> urlList, CancellationToken cancellationToken)
     {
         var byteArrayList = new List<byte[]>();
-
-        using var client = new HttpClient();
         
         foreach (var url in urlList)
         {
             try
             {
-                var data = await client.GetByteArrayAsync(url);
+                var data = await DownloadWithRetryAsync(url, 5, cancellationToken);
     
                 byteArrayList.Add(data);
             }
@@ -134,6 +134,42 @@ public partial class FileService
         }
 
         return byteArrayList;
+    }
+    
+    private static readonly HttpClient client = new HttpClient
+    {
+        Timeout = TimeSpan.FromSeconds(300)
+    };
+    
+    private async Task<byte[]> DownloadWithRetryAsync(string url, int maxRetries, CancellationToken cancellationToken)
+    {
+        for (int i = 0; i < maxRetries; i++)
+        {
+            try
+            {
+                using (HttpResponseMessage response = await client.GetAsync(url, cancellationToken).ConfigureAwait(false))
+                {
+                    response.EnsureSuccessStatusCode();
+                    return await response.Content.ReadAsByteArrayAsync();
+                }
+            }
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                Log.Warning($"Timeout occurred while downloading {url}, retrying... ({i + 1}/{maxRetries})");
+                if (i == maxRetries - 1)
+                {
+                    Log.Error($"Failed to download {url} after {maxRetries} retries.");
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error occurred while downloading {url}");
+                throw;
+            }
+        }
+
+        return null;
     }
     
     public async Task MarkFileTaskAsFailedAsync(FileTask task, CancellationToken cancellationToken)
