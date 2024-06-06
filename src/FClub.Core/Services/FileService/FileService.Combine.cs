@@ -15,22 +15,12 @@ public partial class FileService
     {
         try
         {
-            var awsUrls = new List<string>();
-
-            foreach (var item in urls)
-            {
-                if (item.StartsWith("http")) continue;
-                
-                var awsUrl = await _awsS3Service.GeneratePresignedUrlAsync(item, 5).ConfigureAwait(false);
-                awsUrls.Add(awsUrl);
-            }
-            
-            urls.RemoveAll(x => !x.StartsWith("http"));
-            
-            urls.AddRange(awsUrls);
+            Log.Information("Start Loading URL");
             
             var byteArrayList = await ConvertUrlsToByteArraysAsync(urls, cancellationToken).ConfigureAwait(false);
 
+            Log.Information($"CombineMp4VideosAsync byteArrayList: {@byteArrayList}", byteArrayList);
+            
             var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
 
             Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
@@ -123,8 +113,14 @@ public partial class FileService
         {
             try
             {
+                var presentTime = _clock.Now;
+                
                 var data = await DownloadWithRetryAsync(url, 5, cancellationToken);
-    
+                
+                var downloadTime = _clock.Now - presentTime;
+                
+                Log.Information("Download completed url: {url}, CONSUME TIME: {@downloadTime}", url, downloadTime);
+                
                 byteArrayList.Add(data);
             }
             catch (Exception ex)
@@ -135,11 +131,14 @@ public partial class FileService
 
         return byteArrayList;
     }
-    
-    private static readonly HttpClient client = new HttpClient
+
+    private async Task<string> GetUrlAsync(string url, CancellationToken cancellationToken)
     {
-        Timeout = TimeSpan.FromSeconds(300)
-    };
+        if (!url.StartsWith("http"))
+            return await _awsS3Service.GeneratePresignedUrlAsync(url, 30).ConfigureAwait(false);
+        
+        return url;
+    }
     
     private async Task<byte[]> DownloadWithRetryAsync(string url, int maxRetries, CancellationToken cancellationToken)
     {
@@ -147,20 +146,24 @@ public partial class FileService
         {
             try
             {
-                using (HttpResponseMessage response = await client.GetAsync(url, cancellationToken).ConfigureAwait(false))
+                var uploadUrl = await GetUrlAsync(url, cancellationToken).ConfigureAwait(false);
+                
+                Log.Information("Uploading url: {url}", uploadUrl);
+                
+                using (var response = await client.GetAsync(uploadUrl, cancellationToken).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
-                    return await response.Content.ReadAsByteArrayAsync();
+                    return await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
                 Log.Warning($"Timeout occurred while downloading {url}, retrying... ({i + 1}/{maxRetries})");
-                if (i == maxRetries - 1)
-                {
-                    Log.Error($"Failed to download {url} after {maxRetries} retries.");
-                    throw;
-                }
+                
+                if (i != maxRetries - 1) continue;
+                
+                Log.Error($"Failed to download {url} after {maxRetries} retries.");
+                throw;
             }
             catch (Exception ex)
             {
@@ -223,4 +226,6 @@ public partial class FileService
             Log.Error(ex, "Error on translation");
         }
     }
+    
+    private static readonly HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(300) };
 }

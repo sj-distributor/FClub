@@ -11,76 +11,72 @@ public interface IFfmpegService : IScopedDependency
 
 public class FfmpegService : IFfmpegService
 {
-    public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoDataList, CancellationToken cancellationToken = default)
+    public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoUrls, CancellationToken cancellationToken = default)
     {
         var outputFileName = $"{Guid.NewGuid()}.mp4";
-        var inputFiles = "";
-        var downloadedVideoFiles = new List<string>();
+        var videoFiles = new List<string>();
+        const string inputFileList = "fileList.txt";
         
         try
         {
-            foreach (var videoData in videoDataList)
+            Log.Information("Begin reading content to file");
+            
+            await using (var fileStream = new FileStream(inputFileList, FileMode.Create, FileAccess.Write))
+            await using (var writer = new StreamWriter(fileStream))
             {
-                var videoFileName = $"{Guid.NewGuid()}.mp4";
-                await File.WriteAllBytesAsync(videoFileName, videoData, cancellationToken).ConfigureAwait(false);
-                downloadedVideoFiles.Add(videoFileName);
-                inputFiles += $"-i \"{videoFileName}\" ";
-            }
-
-            var filterComplex = $"-filter_complex \"";
-
-            for (int i = 0; i < downloadedVideoFiles.Count; i++)
-            {
-                filterComplex += $"[{i}:v:0][{i}:a:0]";
-            }
-            
-            filterComplex += $"concat=n={downloadedVideoFiles.Count}:v=1:a=1[outv][outa]\"";
-            
-            var combineArguments = $"{inputFiles} {filterComplex} -map \"[outv]\" -map \"[outa]\" {outputFileName}";
-            
-            Log.Information("Combine command arguments: {combineArguments}", combineArguments);
-            
-            using (var proc = new Process())
-            {
-                proc.StartInfo = new ProcessStartInfo
+                foreach (var content in videoUrls)
                 {
-                    FileName = "ffmpeg",
-                    RedirectStandardError = true,                               
-                    RedirectStandardOutput = true,                               
-                    Arguments = combineArguments                               
-                };                               
-                                           
-                proc.OutputDataReceived += (_, e) =>                               
-                {                               
-                    if (!string.IsNullOrEmpty(e.Data))                               
-                    {                               
-                        Log.Information("FFmpeg Output: {Output}", e.Data);                     
-                    }                               
-                };                               
-                                               
-                proc.Start();
-                proc.BeginErrorReadLine();
-                proc.BeginOutputReadLine();
-
-                await proc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-            }
-            
-            if (File.Exists(outputFileName))
-            {
-                var resultBytes = await File.ReadAllBytesAsync(outputFileName, cancellationToken).ConfigureAwait(false);
-
-                foreach (var fileName in downloadedVideoFiles)
-                {
-                    File.Delete(fileName);
+                    var tempFilePath = $"{ DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.mp4";
+                    await File.WriteAllBytesAsync(tempFilePath, content, cancellationToken).ConfigureAwait(false);
+                    videoFiles.Add(tempFilePath);
+                    await writer.WriteLineAsync($"file '{tempFilePath}'");
                 }
-
-                File.Delete(outputFileName);
-
-                return resultBytes;
             }
 
-            Log.Error("Failed to generate the combined video file.");
-            return Array.Empty<byte>();
+            var fileLines = await File.ReadAllLinesAsync(inputFileList);
+
+            foreach (var line in fileLines)
+            {
+                Console.WriteLine(line);
+            }
+            
+           var combineArguments = $"-f concat -safe 0 -i \"{inputFileList}\" -c copy \"{outputFileName}\"";
+            
+           Log.Information("Combine command arguments: {combineArguments}", combineArguments);
+            
+           Log.Information("Start merge file");
+           using (var proc = new Process())
+           {
+               proc.StartInfo = new ProcessStartInfo
+               {
+                   FileName = "ffmpeg",
+                   RedirectStandardError = true,
+                   RedirectStandardOutput = true,
+                   Arguments = combineArguments
+               };
+
+               proc.ErrorDataReceived += (_, e) =>
+               {
+                   if (!string.IsNullOrEmpty(e.Data))
+                   {
+                       Log.Information("FFmpeg Output: {Output}", e.Data);
+                   }
+               };
+
+               proc.Start();
+               proc.BeginErrorReadLine();
+               proc.BeginOutputReadLine();
+
+               await proc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+           }
+
+           if (File.Exists(outputFileName))
+           {
+               return await File.ReadAllBytesAsync(outputFileName, cancellationToken).ConfigureAwait(false);
+           }
+
+           Log.Error("Failed to generate the combined video file.");
+           return Array.Empty<byte>();
         }
         catch (Exception ex)
         {
@@ -91,14 +87,17 @@ public class FfmpegService : IFfmpegService
         {
             Log.Information("Combine file finally deleting files");
 
+           
+            foreach (var filePath in videoFiles.Where(File.Exists))
+            {
+                File.Delete(filePath);
+            }
+            
+            if (File.Exists(inputFileList))
+                File.Delete(inputFileList);
+            
             if (File.Exists(outputFileName))
                 File.Delete(outputFileName);
-
-            foreach (var fileName in downloadedVideoFiles)
-            {
-                if (File.Exists(fileName))
-                    File.Delete(fileName);
-            }
         }
     }
 }
