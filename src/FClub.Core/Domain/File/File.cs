@@ -20,7 +20,7 @@ public class File : IEntity, IHasCreatedFields
     [Column("type")]
     public FileType Type { get; set; }
 
-    [Column("completed_setting_id")]
+    [Column("upload_setting_id")]
     public int UploadSettingId { get; set; }
 
     [Column("created_date")]

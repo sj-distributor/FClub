@@ -4,7 +4,7 @@ using FClub.Messages.Enums;
 
 namespace FClub.Core.Domain.File;
 
-[Table("completed_setting")]
+[Table("upload_setting")]
 public class UploadSetting : IEntity, IHasCreatedFields
 {
     [Key]

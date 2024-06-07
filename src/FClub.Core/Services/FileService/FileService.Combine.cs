@@ -150,10 +150,17 @@ public partial class FileService
                 
                 Log.Information("Uploading url: {url}", uploadUrl);
                 
-                using (var response = await client.GetAsync(uploadUrl, cancellationToken).ConfigureAwait(false))
+                using (var response = await client.GetAsync(uploadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
-                    return await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
+                    await using (var contentStream = await response.Content.ReadAsStreamAsync())
+                    {
+                        await using (var memoryStream = new MemoryStream())
+                        {
+                            await contentStream.CopyToAsync(memoryStream, 8192, cancellationToken);
+                            return memoryStream.ToArray();
+                        }
+                    }
                 }
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)

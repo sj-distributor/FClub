@@ -1,5 +1,6 @@
 using Serilog;
 using FClub.Core.Ioc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace FClub.Core.Services.Ffmpeg;
@@ -33,18 +34,15 @@ public class FfmpegService : IFfmpegService
                 }
             }
 
-            var fileLines = await File.ReadAllLinesAsync(inputFileList);
-
-            foreach (var line in fileLines)
-            {
-                Console.WriteLine(line);
-            }
+            var fileLines = await File.ReadAllLinesAsync(inputFileList, cancellationToken).ConfigureAwait(false);
+            
+            Log.Information("file path: {fileLines}", JsonConvert.SerializeObject(fileLines));
+            
             
            var combineArguments = $"-f concat -safe 0 -i \"{inputFileList}\" -c copy \"{outputFileName}\"";
             
            Log.Information("Combine command arguments: {combineArguments}", combineArguments);
-            
-           Log.Information("Start merge file");
+           
            using (var proc = new Process())
            {
                proc.StartInfo = new ProcessStartInfo
