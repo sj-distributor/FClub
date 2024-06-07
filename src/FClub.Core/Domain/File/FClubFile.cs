@@ -4,8 +4,8 @@ using FClub.Messages.Enums;
 
 namespace FClub.Core.Domain.File;
 
-[Table("file")]
-public class File : IEntity, IHasCreatedFields
+[Table("fclub_file")]
+public class FClubFile : IEntity, IHasCreatedFields
 {
     [Key]
     [Column("id")]

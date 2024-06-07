@@ -1,4 +1,4 @@
-create table if not exists `file`
+create table if not exists `fclub_file`
 (
     `id` int primary key auto_increment,
     `url` text null,

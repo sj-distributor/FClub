@@ -1,10 +1,10 @@
 using Serilog;
+using System.IO;
 using Newtonsoft.Json;
 using FClub.Messages.Enums;
 using FClub.Core.Domain.File;
 using FClub.Messages.Commands;
 using FClub.Messages.Requests;
-using File = FClub.Core.Domain.File.File;
 
 namespace FClub.Core.Services.FileService;
 
@@ -13,28 +13,38 @@ public partial class FileService
     public async Task<string> CombineMp4VideosAsync(
         string filePath, List<string> urls, CancellationToken cancellationToken)
     {
+        var byteArrayList = new List<string>();
+        
         try
         {
             Log.Information("Start Loading URL");
-            
-            var byteArrayList = await ConvertUrlsToByteArraysAsync(urls, cancellationToken).ConfigureAwait(false);
+
+            byteArrayList = await ConvertUrlsToByteArraysAsync(urls, cancellationToken).ConfigureAwait(false);
 
             Log.Information($"CombineMp4VideosAsync byteArrayList: {@byteArrayList}", byteArrayList);
-            
-            var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken).ConfigureAwait(false);
+
+            var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken)
+                .ConfigureAwait(false);
 
             Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
 
             if (content.Length == 0) return "Combine Failed";
-            
+
             var responseUrl = await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
-            
+
             return responseUrl;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, @"CombineMp4VideosAsync url upload failed, {urls}", JsonConvert.SerializeObject(urls)); 
+            Log.Error(ex, @"CombineMp4VideosAsync url upload failed, {urls}", JsonConvert.SerializeObject(urls));
             throw;
+        }
+        finally
+        {
+            foreach (var item in byteArrayList.Where(File.Exists))
+            {
+                File.Delete(item);
+            }
         }
     }
 
@@ -57,7 +67,7 @@ public partial class FileService
         
         await _fileDataProvider.AddFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
 
-        var files = command.Urls.Select(url => new File { Url = url, TaskId = task.Id, Type = FileType.Input, UploadSettingId = fileSetting.Id }).ToList();
+        var files = command.Urls.Select(url => new FClubFile { Url = url, TaskId = task.Id, Type = FileType.Input, UploadSettingId = fileSetting.Id }).ToList();
 
         await _fileDataProvider.AddFilesAsync(files, cancellationToken).ConfigureAwait(false);
 
@@ -83,7 +93,7 @@ public partial class FileService
     public async Task ProcessCombineFileTaskAsync(Guid taskId, string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var task = await GetCombineTaskAsync(taskId, cancellationToken).ConfigureAwait(false);
-        var file = new File
+        var file = new FClubFile
         {
             TaskId = task.Id,
             Type = FileType.Response
@@ -105,9 +115,9 @@ public partial class FileService
         return await _awsS3Service.GeneratePresignedUrlAsync(filePath).ConfigureAwait(false);
     }
 
-    public async Task<List<byte[]>> ConvertUrlsToByteArraysAsync(List<string> urlList, CancellationToken cancellationToken)
+    public async Task<List<string>> ConvertUrlsToByteArraysAsync(List<string> urlList, CancellationToken cancellationToken)
     {
-        var byteArrayList = new List<byte[]>();
+        var byteArrayList = new List<string>();
         
         foreach (var url in urlList)
         {
@@ -140,28 +150,30 @@ public partial class FileService
         return url;
     }
     
-    private async Task<byte[]> DownloadWithRetryAsync(string url, int maxRetries, CancellationToken cancellationToken)
+    private async Task<string> DownloadWithRetryAsync(string url, int maxRetries, CancellationToken cancellationToken)
     {
         for (int i = 0; i < maxRetries; i++)
         {
             try
             {
+                var temporaryFile = $"{Guid.NewGuid()}.mp4";
                 var uploadUrl = await GetUrlAsync(url, cancellationToken).ConfigureAwait(false);
                 
-                Log.Information("Uploading url: {url}", uploadUrl);
+                Log.Information("Uploading url: {url}, temporaryFile: {temporaryFile}", uploadUrl, temporaryFile);
                 
                 using (var response = await client.GetAsync(uploadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
-                    await using (var contentStream = await response.Content.ReadAsStreamAsync())
+                    await using (var contentStream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
                     {
-                        await using (var memoryStream = new MemoryStream())
+                        await using (var fileStream = new FileStream(temporaryFile, FileMode.Create, FileAccess.Write))
                         {
-                            await contentStream.CopyToAsync(memoryStream, 8192, cancellationToken);
-                            return memoryStream.ToArray();
+                            await contentStream.CopyToAsync(fileStream, 8192, cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
+
+                return temporaryFile;
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
@@ -196,11 +208,11 @@ public partial class FileService
         await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
     }
     
-    public async Task CombineTaskAsync(File file, string filePath, List<string> urls, CancellationToken cancellationToken)
+    public async Task CombineTaskAsync(FClubFile fClubFile, string filePath, List<string> urls, CancellationToken cancellationToken)
     {
-        file.Url = await CombineMp4VideosAsync(filePath, urls, cancellationToken).ConfigureAwait(false);
+        fClubFile.Url = await CombineMp4VideosAsync(filePath, urls, cancellationToken).ConfigureAwait(false);
 
-        await _fileDataProvider.AddFileAsync(file, cancellationToken).ConfigureAwait(false);
+        await _fileDataProvider.AddFileAsync(fClubFile, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<FileTask> GetCombineTaskAsync(Guid taskId, CancellationToken cancellationToken)
@@ -208,17 +220,17 @@ public partial class FileService
         return await _fileDataProvider.GetFileTaskByIdAsync(taskId, cancellationToken).ConfigureAwait(false);
     }
     
-    public async Task CheckAndUpdateCombineTaskAsync(FileTask task, File file, CancellationToken cancellationToken)
+    public async Task CheckAndUpdateCombineTaskAsync(FileTask task, FClubFile fClubFile, CancellationToken cancellationToken)
     {
-        task.Status = !string.IsNullOrEmpty(file.Url) ? FileTaskStatus.Success : FileTaskStatus.Failed;
+        task.Status = !string.IsNullOrEmpty(fClubFile.Url) ? FileTaskStatus.Success : FileTaskStatus.Failed;
         
         await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task SafelyCombineFileAsync(FileTask task, File file, Func<Task> action, CancellationToken cancellationToken)
+    public async Task SafelyCombineFileAsync(FileTask task, FClubFile fClubFile, Func<Task> action, CancellationToken cancellationToken)
     {
         if (task == null) return;
-        if (file == null) return;
+        if (fClubFile == null) return;
         
         try
         {
