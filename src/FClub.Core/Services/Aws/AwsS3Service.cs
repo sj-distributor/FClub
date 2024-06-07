@@ -1,6 +1,8 @@
+using Serilog;
 using Amazon.S3;
 using FClub.Core.Ioc;
 using Amazon.S3.Model;
+using Amazon.S3.Transfer;
 using FClub.Core.Settings.Aws;
 
 namespace FClub.Core.Services.Aws;
@@ -10,6 +12,8 @@ public interface IAwsS3Service : IScopedDependency
     Task UploadFileAsync(string fileName, byte[] fileContent, CancellationToken cancellationToken);
 
     Task<string> GeneratePresignedUrlAsync(string fileName, double durationInMinutes = 1);
+
+    Task UploadFileToS3StreamAsync(string fileName, string uploadFile, CancellationToken cancellationToken);
 }
 
 public class AwsS3Service : IAwsS3Service
@@ -45,5 +49,28 @@ public class AwsS3Service : IAwsS3Service
         };
         
         return await _amazonS3Client.GetPreSignedURLAsync(request).ConfigureAwait(false);
+    }
+    
+    public async Task UploadFileToS3StreamAsync(string fileName, string uploadFile, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var transferUtility = new TransferUtility(_amazonS3Client);
+            
+            using (var fileStream = File.OpenRead(uploadFile))
+            {
+                await transferUtility.UploadAsync(fileStream, _awsS3Settings.BucketName, fileName, cancellationToken);
+            }
+        }
+        catch (AmazonS3Exception ex)
+        {
+            Log.Error("AWS failed to upload the file: {@Exception}", ex);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Failed to upload file: {@Exception}", ex);
+            throw;
+        }
     }
 }

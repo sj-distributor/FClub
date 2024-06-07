@@ -14,6 +14,7 @@ public partial class FileService
         string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var byteArrayList = new List<string>();
+        var uploadFileName = "";
         
         try
         {
@@ -23,14 +24,10 @@ public partial class FileService
 
             Log.Information($"CombineMp4VideosAsync byteArrayList: {@byteArrayList}", byteArrayList);
 
-            var content = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken)
+            uploadFileName = await _ffmpegService.CombineMp4VideosAsync(byteArrayList, cancellationToken)
                 .ConfigureAwait(false);
 
-            Log.Information($"CombineMp4VideosAsync content: {content.Length}", content.Length);
-
-            if (content.Length == 0) return "Combine Failed";
-
-            var responseUrl = await S3UploadAsync(filePath, content, cancellationToken).ConfigureAwait(false);
+            var responseUrl = await S3UploadAsync(filePath, uploadFileName, cancellationToken).ConfigureAwait(false);
 
             return responseUrl;
         }
@@ -41,10 +38,8 @@ public partial class FileService
         }
         finally
         {
-            foreach (var item in byteArrayList.Where(File.Exists))
-            {
-                File.Delete(item);
-            }
+            if (File.Exists(uploadFileName))
+                File.Delete(uploadFileName);
         }
     }
 
@@ -108,9 +103,9 @@ public partial class FileService
         }, cancellationToken).ConfigureAwait(false);
     }
     
-    public async Task<string> S3UploadAsync(string filePath, byte[] fileContent, CancellationToken cancellationToken)
+    public async Task<string> S3UploadAsync(string filePath, string uploadFile, CancellationToken cancellationToken)
     {
-        await _awsS3Service.UploadFileAsync(filePath, fileContent, cancellationToken).ConfigureAwait(false);
+        await _awsS3Service.UploadFileToS3StreamAsync(filePath, uploadFile, cancellationToken).ConfigureAwait(false);
         
         return await _awsS3Service.GeneratePresignedUrlAsync(filePath).ConfigureAwait(false);
     }
