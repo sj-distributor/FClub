@@ -56,11 +56,10 @@ public class AwsS3Service : IAwsS3Service
         try
         {
             var transferUtility = new TransferUtility(_amazonS3Client);
+
+            await using var fileStream = File.OpenRead(uploadFile);
             
-            using (var fileStream = File.OpenRead(uploadFile))
-            {
-                await transferUtility.UploadAsync(fileStream, _awsS3Settings.BucketName, fileName, cancellationToken);
-            }
+            await transferUtility.UploadAsync(fileStream, _awsS3Settings.BucketName, fileName, cancellationToken);
         }
         catch (AmazonS3Exception ex)
         {
