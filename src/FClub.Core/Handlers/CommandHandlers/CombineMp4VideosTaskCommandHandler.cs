@@ -5,16 +5,16 @@ using FClub.Core.Services.FileService;
 
 namespace FClub.Core.Handlers.CommandHandlers;
 
-public class CombineMp4VideoTaskCommandHandler : ICommandHandler<CombineMp4VideoTaskCommand, CombineMp4VideoTaskResponse>
+public class CombineMp4VideosTaskCommandHandler : ICommandHandler<CombineMp4VideosTaskCommand, CombineMp4VideosTaskResponse>
 {
     private readonly IFileService _fileService;
 
-    public CombineMp4VideoTaskCommandHandler(IFileService fileService)
+    public CombineMp4VideosTaskCommandHandler(IFileService fileService)
     {
         _fileService = fileService;
     }
 
-    public async Task<CombineMp4VideoTaskResponse> Handle(IReceiveContext<CombineMp4VideoTaskCommand> context, CancellationToken cancellationToken)
+    public async Task<CombineMp4VideosTaskResponse> Handle(IReceiveContext<CombineMp4VideosTaskCommand> context, CancellationToken cancellationToken)
     {
         return await _fileService.CombineMp4VideoTaskAsync(context.Message, cancellationToken).ConfigureAwait(false);
     }

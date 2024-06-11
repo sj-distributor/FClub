@@ -12,7 +12,7 @@ public class FileServiceFixture : FileFixtureBase
     {
         await Run<IMediator>(async mediator =>
         {
-            var command = new CombineMp4VideoCommand
+            var command = new CombineMp4VideosCommand
             {
                 FilePath = "FClub/2dfab0fe-1b1f-4c90-9903-59b97cde2f4e.mp4",
                

@@ -38,8 +38,8 @@ public partial class FileService
         }
     }
 
-    public async Task<CombineMp4VideoTaskResponse> CombineMp4VideoTaskAsync(
-        CombineMp4VideoTaskCommand command, CancellationToken cancellationToken)
+    public async Task<CombineMp4VideosTaskResponse> CombineMp4VideoTaskAsync(
+        CombineMp4VideosTaskCommand command, CancellationToken cancellationToken)
     {
         var task = new FileTask
         {
@@ -64,24 +64,20 @@ public partial class FileService
 
         _backgroundJobClient.Enqueue(() => ProcessCombineFileTaskAsync(task.Id, command.FilePath, command.Urls, cancellationToken));
 
-        return new CombineMp4VideoTaskResponse
+        return new CombineMp4VideosTaskResponse
         {
             Data = task.Id
         };
     }
 
-    public async Task<GetCombineMp4VideoTaskResponse> GetCombineMp4VideoTaskAsync(
-        GetCombineMp4VideoTaskRequest request, CancellationToken cancellationToken)
+    public async Task<GetCombineMp4VideosTaskResponse> GetCombineMp4VideoTaskAsync(
+        GetCombineMp4VideosTaskRequest request, CancellationToken cancellationToken)
     {
         var files = await _fileDataProvider.GetFilesAsync(request.TaskId, cancellationToken).ConfigureAwait(false);
         
-        return new GetCombineMp4VideoTaskResponse
+        return new GetCombineMp4VideosTaskResponse
         {
-            Data = new GetCombineMp4VideoTaskDto
-            {
-                OriginalFiles = files.Where(x => x.Type == FileType.Input).Select(x => x.Url).ToList(),
-                CombineFile = files.Single(x => x.Type == FileType.Response).Url,
-            }
+            Data = _mapper.Map<GetCombineMp4VideoTaskDto>(files.FirstOrDefault(x => x.Type == FileType.Response))
         };
     }
 

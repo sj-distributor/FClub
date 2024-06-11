@@ -8,6 +8,6 @@ public class FileMapping : Profile
 {
     public FileMapping()
     {
-        CreateMap<CombineMp4VideoTaskCommand, FileTask>();
+        CreateMap<CombineMp4VideosTaskCommand, FClubFile>();
     }
 }
