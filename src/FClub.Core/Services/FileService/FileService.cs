@@ -1,6 +1,7 @@
 using AutoMapper;
 using FClub.Core.Services.Aws;
 using FClub.Core.Services.Ffmpeg;
+using FClub.Core.Services.Http.Clients;
 using FClub.Core.Services.Jobs;
 using FClub.Core.Services.Utils;
 
@@ -13,6 +14,7 @@ public partial class FileService : IFileService
     private readonly IAwsS3Service _awsS3Service;
     private readonly IFfmpegService _ffmpegService;
     private readonly IFileDataProvider _fileDataProvider;
+    private readonly ISugarTalkClient _sugarTalkClient;
     private readonly IFClubBackgroundJobClient _backgroundJobClient;
     
     public FileService(
@@ -21,6 +23,7 @@ public partial class FileService : IFileService
         IAwsS3Service awsS3Service,
         IFfmpegService ffmpegService,
         IFileDataProvider fileDataProvider,
+        ISugarTalkClient sugarTalkClient,
         IFClubBackgroundJobClient backgroundJobClient)
     {
         _clock = clock;
@@ -28,6 +31,7 @@ public partial class FileService : IFileService
         _awsS3Service = awsS3Service;
         _ffmpegService = ffmpegService;
         _fileDataProvider = fileDataProvider;
+        _sugarTalkClient = sugarTalkClient;
         _backgroundJobClient = backgroundJobClient;
     }
 }

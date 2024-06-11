@@ -4,6 +4,7 @@ using FClub.Core.Services.Utils;
 using FClub.Core.Services.Jobs;
 using FClub.Core.Services.Ffmpeg;
 using FClub.Core.Services.FileService;
+using FClub.Core.Services.Http.Clients;
 
 namespace FClub.UnitTests;
 
@@ -15,11 +16,12 @@ public partial class BaseFixture
     protected readonly IAwsS3Service _awsS3Service;
     protected readonly IFfmpegService _ffmpegService;
     protected readonly IFileDataProvider _fileDataProvider;
+    protected readonly ISugarTalkClient _sugarTalkClient;
     protected readonly IFClubBackgroundJobClient _backgroundJobClient;
 
     public BaseFixture()
     {
-        _fileService = MockFileService(_clock, _mapper, _awsS3Service, _ffmpegService, _fileDataProvider, _backgroundJobClient);
+        _fileService = MockFileService(_clock, _mapper, _awsS3Service, _ffmpegService, _fileDataProvider, _sugarTalkClient, _backgroundJobClient);
     }
 
     protected IFileService MockFileService(
@@ -28,8 +30,9 @@ public partial class BaseFixture
         IAwsS3Service awsS3Service,
         IFfmpegService ffmpegService,
         IFileDataProvider fileDataProvider,
+        ISugarTalkClient sugarTalkClient,
         IFClubBackgroundJobClient backgroundJobClient)
     {
-        return new FileService(clock, mapper, awsS3Service, ffmpegService, fileDataProvider, backgroundJobClient);
+        return new FileService(clock, mapper, awsS3Service, ffmpegService, fileDataProvider, sugarTalkClient, backgroundJobClient);
     }
 }

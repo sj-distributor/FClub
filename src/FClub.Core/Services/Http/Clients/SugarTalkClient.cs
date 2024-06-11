@@ -6,6 +6,7 @@ namespace FClub.Core.Services.Http.Clients;
 
 public interface ISugarTalkClient : IScopedDependency
 {
+    Task UpdateMeetingRecordUrlAsync(UpdateMeetingRecordUrlDto request, CancellationToken cancellationToken);
 }
 
 public class SugarTalkClient : ISugarTalkClient
@@ -26,6 +27,7 @@ public class SugarTalkClient : ISugarTalkClient
                 {"X-API-KEY", $"{_sugarTalkSettings.ApiKey}"}
             };
         
-        await _httpClientFactory.PostAsJsonAsync($"{_sugarTalkSettings.BaseUrl}/Meeting/record/update", request, cancellationToken: cancellationToken, headers: headers).ConfigureAwait(false);
+        await _httpClientFactory.PostAsJsonAsync(
+            $"{_sugarTalkSettings.BaseUrl}/Meeting/record/update", request, cancellationToken: cancellationToken, headers: headers).ConfigureAwait(false);
     }
 }

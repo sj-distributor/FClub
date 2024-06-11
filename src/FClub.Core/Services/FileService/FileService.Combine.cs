@@ -4,6 +4,7 @@ using FClub.Messages.Enums;
 using FClub.Core.Domain.File;
 using FClub.Messages.Commands;
 using FClub.Messages.Requests;
+using FClub.Messages.Dto.SugarTalk;
 
 namespace FClub.Core.Services.FileService;
 
@@ -62,7 +63,7 @@ public partial class FileService
 
         await _fileDataProvider.AddFilesAsync(files, cancellationToken).ConfigureAwait(false);
 
-        _backgroundJobClient.Enqueue(() => ProcessCombineFileTaskAsync(task.Id, command.FilePath, command.Urls, cancellationToken));
+        _backgroundJobClient.Enqueue(() => ProcessCombineFileTaskAsync(task.Id, command.UploadId, command.FilePath, command.Urls, cancellationToken));
 
         return new CombineMp4VideosTaskResponse
         {
@@ -81,7 +82,7 @@ public partial class FileService
         };
     }
 
-    public async Task ProcessCombineFileTaskAsync(Guid taskId, string filePath, List<string> urls, CancellationToken cancellationToken)
+    public async Task ProcessCombineFileTaskAsync(Guid taskId, Guid uploadId, string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var task = await GetCombineTaskAsync(taskId, cancellationToken).ConfigureAwait(false);
         var file = new FClubFile
@@ -94,6 +95,7 @@ public partial class FileService
         {
             await MarkCombineTaskAsInProgressAsync(task, cancellationToken).ConfigureAwait(false);
             await CombineTaskAsync(file, filePath, urls, cancellationToken).ConfigureAwait(false);
+            await UpdateSugarTalkUrlAsync(file, uploadId, cancellationToken).ConfigureAwait(false);
             await CheckAndUpdateCombineTaskAsync(task, file, cancellationToken).ConfigureAwait(false);
             
         }, cancellationToken).ConfigureAwait(false);
@@ -208,6 +210,17 @@ public partial class FileService
         fClubFile.Url = await CombineMp4VideosAsync(filePath, urls, cancellationToken).ConfigureAwait(false);
 
         await _fileDataProvider.AddFileAsync(fClubFile, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task UpdateSugarTalkUrlAsync(FClubFile fClubFile, Guid id, CancellationToken cancellationToken)
+    {
+        if (fClubFile.Url == null)
+            return;
+        
+        Log.Information($"Update SugartTalk url argument：url: {fClubFile.Url}, id: {id}", fClubFile.Url, id);
+        
+        await _sugarTalkClient.UpdateMeetingRecordUrlAsync(
+            new UpdateMeetingRecordUrlDto{ Id = id, Url = fClubFile.Url}, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<FileTask> GetCombineTaskAsync(Guid taskId, CancellationToken cancellationToken)
