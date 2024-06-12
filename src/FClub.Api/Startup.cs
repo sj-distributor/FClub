@@ -28,13 +28,14 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddHttpContextAccessor();
         services.AddCustomSwagger();
+        services.AddCustomAuthentication(Configuration);
         services.AddCorsPolicy(Configuration);
-        
+
         services.AddMvc(options =>
         {
             options.Filters.Add<GlobalExceptionFilter>();
         });
-        
+
         services.AddHangfireInternal(Configuration);
     }
     
@@ -54,6 +55,8 @@ public class Startup
         app.UseRouting();
         app.UseCors();
         app.UseResponseCaching();
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.UseHangfireInternal();
         
         app.UseEndpoints(endpoints =>

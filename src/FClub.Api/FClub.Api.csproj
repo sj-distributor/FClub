@@ -5,7 +5,6 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <DocumentationFile></DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +19,7 @@
       <PackageReference Include="Mediator.Net" Version="4.7.0" />
       <PackageReference Include="Mediator.Net.Autofac" Version="4.7.0" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.5" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.4" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
     </ItemGroup>
@@ -27,6 +27,10 @@
     <ItemGroup>
       <ProjectReference Include="..\FClub.Core\FClub.Core.csproj" />
       <ProjectReference Include="..\FClub.Messages\FClub.Messages.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Authentication\" />
     </ItemGroup>
     
 </Project>
