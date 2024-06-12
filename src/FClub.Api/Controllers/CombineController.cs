@@ -2,9 +2,11 @@ using Mediator.Net;
 using FClub.Messages.Commands;
 using FClub.Messages.Requests;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FClub.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class CombineController : ControllerBase
