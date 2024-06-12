@@ -4,6 +4,7 @@ using Mediator.Net;
 using FClub.Core.Ioc;
 using FClub.Core.Data;
 using System.Reflection;
+using Autofac.Core;
 using FClub.Core.Settings;
 using Mediator.Net.Autofac;
 using FClub.Core.Services.Caching;
@@ -35,32 +36,25 @@ public class FClubModule : Module
         RegisterLogger(builder);
         RegisterSettings(builder);
         RegisterMediator(builder);
-        RegisterDependency(builder);
-        RegisterDatabase(builder);
-        RegisterAutoMapper(builder);
         RegisterCaching(builder);
+        RegisterDatabase(builder);
+        RegisterDependency(builder);
+        RegisterAutoMapper(builder);
     }
 
     private void RegisterDependency(ContainerBuilder builder)
     {
         foreach (var type in typeof(IDependency).Assembly.GetTypes()
-                     .Where(t => typeof(IDependency).IsAssignableFrom(t) && t.IsClass))
+                     .Where(type => type.IsClass && typeof(IDependency).IsAssignableFrom(type)))
         {
-            switch (type)
-            {
-                case var t when typeof(IScopedDependency).IsAssignableFrom(type):
-                    builder.RegisterType(t).AsImplementedInterfaces().InstancePerLifetimeScope();
-                    break;
-                case var t when typeof(ISingletonDependency).IsAssignableFrom(type):
-                    builder.RegisterType(t).AsImplementedInterfaces().SingleInstance();
-                    break;
-                case var t when typeof(ITransientDependency).IsAssignableFrom(type):
-                    builder.RegisterType(t).AsImplementedInterfaces().InstancePerDependency();
-                    break;
-                default:
-                    builder.RegisterType(type).AsImplementedInterfaces();
-                    break;
-            }
+            if (typeof(IScopedDependency).IsAssignableFrom(type))
+                builder.RegisterType(type).AsSelf().AsImplementedInterfaces().InstancePerLifetimeScope();
+            else if (typeof(ISingletonDependency).IsAssignableFrom(type))
+                builder.RegisterType(type).AsSelf().AsImplementedInterfaces().SingleInstance();
+            else if (typeof(ITransientDependency).IsAssignableFrom(type))
+                builder.RegisterType(type).AsSelf().AsImplementedInterfaces().InstancePerDependency();
+            else
+                builder.RegisterType(type).AsSelf().AsImplementedInterfaces();
         }
     }
 

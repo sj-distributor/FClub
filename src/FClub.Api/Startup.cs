@@ -1,6 +1,9 @@
+using Correlate.AspNetCore;
 using FClub.Messages;
 using FClub.Api.Extensions;
 using Correlate.DependencyInjection;
+using FClub.Api.Filters;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace FClub.Api;
@@ -25,7 +28,15 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddHttpContextAccessor();
         services.AddCustomSwagger();
+        services.AddCustomAuthentication(Configuration);
         services.AddCorsPolicy(Configuration);
+
+        services.AddMvc(options =>
+        {
+            options.Filters.Add<GlobalExceptionFilter>();
+        });
+
+        services.AddHangfireInternal(Configuration);
     }
     
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -39,12 +50,19 @@ public class Startup
                 c.DocExpansion(DocExpansion.None);
             });
         }
-
+        app.UseSerilogRequestLogging();
+        app.UseCorrelate();
         app.UseRouting();
+        app.UseCors();
+        app.UseResponseCaching();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseHangfireInternal();
         
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+            endpoints.MapHealthChecks("health");
         });
     }
 }

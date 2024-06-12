@@ -1,8 +1,7 @@
 using FClub.Core.Ioc;
-using FClub.Core.Services.Caching;
 using FClub.Messages.Enums.Caching;
 
-namespace SugarTalk.Core.Services.Caching;
+namespace FClub.Core.Services.Caching;
 
 public interface ICacheManager : IScopedDependency
 {
