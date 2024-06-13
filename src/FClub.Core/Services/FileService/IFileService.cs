@@ -6,8 +6,7 @@ namespace FClub.Core.Services.FileService;
 
 public interface IFileService : IScopedDependency
 {
-    Task<string> CombineMp4VideosAsync(
-        string filePath, List<string> urls, CancellationToken cancellationToken);
+    Task<string> CombineMp4VideosAsync(string filePath, List<string> urls, CancellationToken cancellationToken);
     
     Task<CombineMp4VideosTaskResponse> CombineMp4VideoTaskAsync(CombineMp4VideosTaskCommand command, CancellationToken cancellationToken);
     

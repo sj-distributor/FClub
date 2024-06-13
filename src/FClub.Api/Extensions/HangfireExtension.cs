@@ -45,13 +45,13 @@ public static class HangfireExtension
 
         app.ScanHangfireRecurringJobs();
     }
-    
+
     public static void ScanHangfireRecurringJobs(this IApplicationBuilder app)
     {
         var backgroundJobClient = app.ApplicationServices.GetRequiredService<IFClubBackgroundJobClient>();
-        
+
         var recurringJobTypes = typeof(IRecurringJob).Assembly.GetTypes().Where(type => type.IsClass && typeof(IRecurringJob).IsAssignableFrom(type)).ToList();
-        
+
         foreach (var type in recurringJobTypes)
         {
             var job = (IRecurringJob) app.ApplicationServices.GetRequiredService(type);

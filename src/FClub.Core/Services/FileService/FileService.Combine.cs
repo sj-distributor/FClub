@@ -10,8 +10,7 @@ namespace FClub.Core.Services.FileService;
 
 public partial class FileService
 {
-    public async Task<string> CombineMp4VideosAsync(
-        string filePath, List<string> urls, CancellationToken cancellationToken)
+    public async Task<string> CombineMp4VideosAsync(string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var uploadFileName = "";
         
@@ -82,7 +81,8 @@ public partial class FileService
         };
     }
 
-    public async Task ProcessCombineFileTaskAsync(Guid taskId, Guid uploadId, string filePath, List<string> urls, CancellationToken cancellationToken)
+    public async Task ProcessCombineFileTaskAsync(
+        Guid taskId, Guid uploadId, string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var task = await GetCombineTaskAsync(taskId, cancellationToken).ConfigureAwait(false);
         var file = new FClubFile
@@ -145,7 +145,8 @@ public partial class FileService
                 
                 Log.Information("Uploading url: {url}, temporaryFile: {temporaryFile}", uploadUrl, temporaryFile);
 
-                using var response = await client.GetAsync(uploadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                using var response = await client.GetAsync(
+                    uploadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                 
                 response.EnsureSuccessStatusCode();
 

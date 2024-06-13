@@ -9,8 +9,6 @@ namespace FClub.Core.Services.Aws;
 
 public interface IAwsS3Service : IScopedDependency
 {
-    Task UploadFileAsync(string fileName, byte[] fileContent, CancellationToken cancellationToken);
-
     Task<string> GeneratePresignedUrlAsync(string fileName, double durationInMinutes = 1);
 
     Task UploadFileToS3StreamAsync(string fileName, string uploadFile, CancellationToken cancellationToken);
@@ -25,18 +23,6 @@ public class AwsS3Service : IAwsS3Service
     {
         _awsS3Settings = awsS3Settings;
         _amazonS3Client = amazonS3Client;
-    }
-
-    public async Task UploadFileAsync(string fileName, byte[] fileContent, CancellationToken cancellationToken)
-    {
-        var request = new PutObjectRequest
-        {
-            Key = fileName,
-            BucketName = _awsS3Settings.BucketName,
-            InputStream = new MemoryStream(fileContent)
-        };
-        
-        await _amazonS3Client.PutObjectAsync(request, cancellationToken);
     }
 
     public async Task<string> GeneratePresignedUrlAsync(string fileName, double durationInMinutes = 1)

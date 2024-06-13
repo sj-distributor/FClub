@@ -6,9 +6,9 @@ using Mediator.Net;
 using FClub.Core.Ioc;
 using FClub.Core.Data;
 using System.Reflection;
-using Autofac.Core;
 using FClub.Core.Settings;
 using Mediator.Net.Autofac;
+using FClub.Core.Settings.Aws;
 using FClub.Core.Services.Caching;
 using Microsoft.EntityFrameworkCore;
 using FClub.Core.Middlewares.UnitOfWork;
@@ -16,7 +16,6 @@ using Mediator.Net.Middlewares.Serilog;
 using Microsoft.Extensions.Configuration;
 using FClub.Core.Middlewares.UnifyResponse;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
-using FClub.Core.Settings.Aws;
 using Module = Autofac.Module;
 
 namespace FClub.Core;
