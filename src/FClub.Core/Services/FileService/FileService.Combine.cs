@@ -53,14 +53,14 @@ public partial class FileService
             UploadAddressType = UploadType.Aws
         };
 
-        await _fileDataProvider.AddUploadSettingAsync(fileSetting, cancellationToken).ConfigureAwait(false);
+        await _fileDataProvider.AddUploadSettingAsync(fileSetting, cancellationToken: cancellationToken).ConfigureAwait(false);
         
-        await _fileDataProvider.AddFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
+        await _fileDataProvider.AddFileTaskAsync(task, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         var files = command.Urls.Select(
             url => new FClubFile { Url = url, TaskId = task.Id, Type = FileType.Input, UploadSettingId = fileSetting.Id }).ToList();
 
-        await _fileDataProvider.AddFilesAsync(files, cancellationToken).ConfigureAwait(false);
+        await _fileDataProvider.AddFilesAsync(files, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         _backgroundJobClient.Enqueue(() => ProcessCombineFileTaskAsync(task.Id, command.UploadId, command.FilePath, command.Urls, cancellationToken));
 
@@ -85,6 +85,7 @@ public partial class FileService
         Guid taskId, Guid uploadId, string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         var task = await GetCombineTaskAsync(taskId, cancellationToken).ConfigureAwait(false);
+        
         var file = new FClubFile
         {
             TaskId = task.Id,
@@ -97,7 +98,6 @@ public partial class FileService
             await CombineTaskAsync(file, filePath, urls, cancellationToken).ConfigureAwait(false);
             await UpdateSugarTalkUrlAsync(file, uploadId, cancellationToken).ConfigureAwait(false);
             await CheckAndUpdateCombineTaskAsync(task, file, cancellationToken).ConfigureAwait(false);
-            
         }, cancellationToken).ConfigureAwait(false);
     }
     
@@ -141,11 +141,11 @@ public partial class FileService
             try
             {
                 var temporaryFile = $"{Guid.NewGuid()}.mp4";
-                var uploadUrl = await GetUrlAsync(url, cancellationToken).ConfigureAwait(false);
+                var uploadUrl = await GetUrlAsync(url).ConfigureAwait(false);
                 
                 Log.Information("Uploading url: {url}, temporaryFile: {temporaryFile}", uploadUrl, temporaryFile);
 
-                using var response = await client.GetAsync(
+                using var response = await Client.GetAsync(
                     uploadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                 
                 response.EnsureSuccessStatusCode();
@@ -184,7 +184,7 @@ public partial class FileService
         return filePath;
     }
 
-    private async Task<string> GetUrlAsync(string url, CancellationToken cancellationToken)
+    private async Task<string> GetUrlAsync(string url)
     {
         if (!url.StartsWith("http"))
             return await _awsS3Service.GeneratePresignedUrlAsync(url, 30).ConfigureAwait(false);
@@ -196,21 +196,21 @@ public partial class FileService
     {
         task.Status = FileTaskStatus.Failed;
         
-        await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
+        await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
     
     private async Task MarkCombineTaskAsInProgressAsync(FileTask task, CancellationToken cancellationToken)
     {
         task.Status = FileTaskStatus.Processing;
         
-        await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
+        await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
     
     private async Task CombineTaskAsync(FClubFile fClubFile, string filePath, List<string> urls, CancellationToken cancellationToken)
     {
         fClubFile.Url = await CombineMp4VideosAsync(filePath, urls, cancellationToken).ConfigureAwait(false);
 
-        await _fileDataProvider.AddFileAsync(fClubFile, cancellationToken).ConfigureAwait(false);
+        await _fileDataProvider.AddFileAsync(fClubFile, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     private async Task UpdateSugarTalkUrlAsync(FClubFile fClubFile, Guid id, CancellationToken cancellationToken)
@@ -233,7 +233,7 @@ public partial class FileService
     {
         task.Status = !string.IsNullOrEmpty(fClubFile.Url) ? FileTaskStatus.Success : FileTaskStatus.Failed;
         
-        await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken).ConfigureAwait(false);
+        await _fileDataProvider.UpdateFileTaskAsync(task, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     private async Task SafelyCombineFileAsync(FileTask task, FClubFile fClubFile, Func<Task> action, CancellationToken cancellationToken)
@@ -252,5 +252,5 @@ public partial class FileService
         }
     }
     
-    private static readonly HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(300) };
+    private static readonly HttpClient Client = new HttpClient { Timeout = TimeSpan.FromSeconds(300) };
 }
