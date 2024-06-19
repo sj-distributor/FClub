@@ -1,9 +1,9 @@
-using Correlate.AspNetCore;
-using FClub.Messages;
-using FClub.Api.Extensions;
-using Correlate.DependencyInjection;
-using FClub.Api.Filters;
 using Serilog;
+using FClub.Messages;
+using FClub.Api.Filters;
+using FClub.Api.Extensions;
+using Correlate.AspNetCore;
+using Correlate.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace FClub.Api;

@@ -4,8 +4,8 @@ using FClub.Messages.Enums;
 
 namespace FClub.Core.Domain.File;
 
-[Table("file")]
-public class File : IEntity, IHasCreatedFields
+[Table("fclub_file")]
+public class FClubFile : IEntity, IHasCreatedFields
 {
     [Key]
     [Column("id")]
@@ -20,8 +20,8 @@ public class File : IEntity, IHasCreatedFields
     [Column("type")]
     public FileType Type { get; set; }
 
-    [Column("completed_setting_id")]
-    public int CompletedSettingId { get; set; }
+    [Column("upload_setting_id")]
+    public int UploadSettingId { get; set; }
 
     [Column("created_date")]
     public DateTimeOffset CreatedDate { get; set; }

@@ -1,86 +1,97 @@
 using Serilog;
+using System.IO;
 using FClub.Core.Ioc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace FClub.Core.Services.Ffmpeg;
 
 public interface IFfmpegService : IScopedDependency
 {
-    Task<byte[]> CombineMp4VideosAsync(List<byte[]>  videoUrls, CancellationToken cancellationToken = default);
+    Task<string> CombineMp4VideosAsync(List<string> videoUrls, CancellationToken cancellationToken = default);
 }
 
 public class FfmpegService : IFfmpegService
 {
-    public async Task<byte[]> CombineMp4VideosAsync(List<byte[]> videoDataList, CancellationToken cancellationToken = default)
+    public async Task<string> CombineMp4VideosAsync(List<string> videoUrls, CancellationToken cancellationToken = default)
     {
-        /*try
+        var outputFileName = $"{Guid.NewGuid()}.mp4";
+        const string inputFileList = "fileList.txt";
+        
+        try
         {
-            var outputFileName = $"{Guid.NewGuid()}.mp4";
-            var inputFiles = "";
+            Log.Information("Begin reading content to file");
             
-            var downloadedVideoFiles = new List<string>();
-            foreach (var videoData in videoDataList)
+            await using (var fileStream = new FileStream(inputFileList, FileMode.Create, FileAccess.Write))
+            await using (var writer = new StreamWriter(fileStream))
             {
-                var videoFileName = $"{Guid.NewGuid()}.mp4";
-                await File.WriteAllBytesAsync(videoFileName, videoData, cancellationToken).ConfigureAwait(false);
-                downloadedVideoFiles.Add(videoFileName);
-                inputFiles += $"-i \"{videoFileName}\" ";
-            }
-
-            var filterComplex = $"-filter_complex \"";
-
-            for (int i = 0; i < downloadedVideoFiles.Count; i++)
-            {
-                filterComplex += $"[{i}:v:0][{i}:a:0]";
-            }
-            
-            filterComplex += $"concat=n={downloadedVideoFiles.Count}:v=1:a=1[outv][outa]\"";
-
-            var combineArguments = $"{inputFiles} {filterComplex} -map \"[outv]\" -map \"[outa]\" {outputFileName}";
-            
-            Log.Information("Combine command arguments: {combineArguments}", combineArguments);
-            
-            using (var proc = new Process())
-            {
-                proc.StartInfo = new ProcessStartInfo
+                foreach (var content in videoUrls)
                 {
-                    FileName = "ffmpeg",
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                    Arguments = combineArguments
-                };
-            
-                proc.OutputDataReceived += (_, e) => Log.Information("Combine audio, {@Output}", e);
-
-                proc.Start();
-                proc.BeginErrorReadLine();
-                proc.BeginOutputReadLine();
-
-                await proc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-            }
-            
-            if (File.Exists(outputFileName))
-            {
-                var resultBytes = await File.ReadAllBytesAsync(outputFileName, cancellationToken).ConfigureAwait(false);
-
-                foreach (var fileName in downloadedVideoFiles)
-                {
-                    File.Delete(fileName);
+                    await writer.WriteLineAsync($"file '{content}'");
                 }
-                
-                File.Delete(outputFileName);
-
-                return resultBytes;
             }
 
-            Log.Error("Failed to generate the combined video file.");
-            return Array.Empty<byte>();
+            var fileLines = await File.ReadAllLinesAsync(inputFileList, cancellationToken).ConfigureAwait(false);
+            
+            Log.Information("file path: {fileLines}", JsonConvert.SerializeObject(fileLines));
+            
+            
+           var combineArguments = $"-f concat -safe 0 -i \"{inputFileList}\" -c copy \"{outputFileName}\"";
+            
+           Log.Information("Combine command arguments: {combineArguments}", combineArguments);
+           
+           using (var proc = new Process())
+           {
+               proc.StartInfo = new ProcessStartInfo
+               {
+                   FileName = "ffmpeg",
+                   RedirectStandardError = true,
+                   RedirectStandardOutput = true,
+                   Arguments = combineArguments,
+                   UseShellExecute = false,
+                   CreateNoWindow = true
+               };
+
+               proc.ErrorDataReceived += (_, e) =>
+               {
+                   if (!string.IsNullOrEmpty(e.Data))
+                   {
+                       Log.Information("FFmpeg Output: {Output}", e.Data);
+                   }
+               };
+
+               proc.Start();
+               proc.BeginErrorReadLine();
+               proc.BeginOutputReadLine();
+
+               await proc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+           }
+           
+
+           if (File.Exists(outputFileName))
+           {
+               return outputFileName;
+           }
+
+           Log.Error("Failed to generate the combined video file.");
+           return null;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error occurred while combining MP4 videos.");
-            return Array.Empty<byte>();
-        }*/
-        return null;
+            return null;
+        }
+        finally
+        {
+            Log.Information("Combine file finally deleting files");
+           
+            foreach (var filePath in videoUrls.Where(File.Exists))
+            {
+                File.Delete(filePath);
+            }
+            
+            if (File.Exists(inputFileList))
+                File.Delete(inputFileList);
+        }
     }
 }

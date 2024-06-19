@@ -1,3 +1,4 @@
+using Serilog;
 using AutoMapper;
 using FClub.Core.Ioc;
 using FClub.Core.Data;
@@ -33,6 +34,8 @@ namespace FClub.Core.Services.Account
         
         public async Task<UserAccountDto> GetUserAccountByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default)
         {
+            Log.Information($"FClub apiKey: {apiKey}", apiKey);
+            
             var accountApiKey = await _repository.QueryNoTracking<UserAccountApiKey>()
                 .Where(x => x.ApiKey == apiKey)
                 .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
