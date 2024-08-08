@@ -1,6 +1,4 @@
-FROM registry-vpc.cn-hongkong.aliyuncs.com/wiltechs/sdk:7.0 AS build-env
-
-USER root
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 
 WORKDIR /app
 EXPOSE 80
@@ -13,12 +11,10 @@ COPY ./NuGet.Config ./build
 
 RUN dotnet publish build/FClub.Api -c Release -o out
 
-FROM registry-vpc.cn-hongkong.aliyuncs.com/wiltechs/aspnet:7.0
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
 
-USER root
-
-RUN apt-get update && apt-get install -y \
-    bzip2 make gcc yasm libopencore-amrnb-dev libopencore-amrwb-dev wget 
+# ffmpeg
+RUN apt-get update && apt-get install -y bzip2 make gcc yasm libopencore-amrnb-dev libopencore-amrwb-dev wget xz-utils
 
 RUN wget https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2 && \
  tar -jxvf ffmpeg-snapshot.tar.bz2 && \

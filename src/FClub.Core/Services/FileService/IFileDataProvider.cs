@@ -1,22 +1,21 @@
 using FClub.Core.Ioc;
 using FClub.Core.Domain.File;
-using File = FClub.Core.Domain.File.File;
 
 namespace FClub.Core.Services.FileService;
 
 public interface IFileDataProvider : IScopedDependency
 {
-    Task AddFileTaskAsync(FileTask fileTask, CancellationToken cancellationToken);
+    Task AddFileTaskAsync(FileTask fileTask, bool forSave = true, CancellationToken cancellationToken = default);
 
-    Task AddFilesAsync(List<File> files, CancellationToken cancellationToken);
+    Task AddFilesAsync(List<FClubFile> fClubFiles, bool forSave = true, CancellationToken cancellationToken = default);
 
-    Task AddFileAsync(File file, CancellationToken cancellationToken);
+    Task AddFileAsync(FClubFile fClubFile, bool forSave = true, CancellationToken cancellationToken = default);
     
-    Task AddUploadSettingAsync(UploadSetting uploadSetting, CancellationToken cancellationToken);
+    Task AddUploadSettingAsync(UploadSetting uploadSetting, bool forSave = true, CancellationToken cancellationToken = default);
 
-    Task UpdateFileTaskAsync(FileTask fileTask, CancellationToken cancellationToken);
+    Task UpdateFileTaskAsync(FileTask fileTask, bool forSave = true, CancellationToken cancellationToken = default);
 
     Task<FileTask> GetFileTaskByIdAsync(Guid id, CancellationToken cancellationToken);
 
-    Task<List<File>> GetFilesAsync(Guid? taskId, CancellationToken cancellationToken);
+    Task<List<FClubFile>> GetFilesAsync(Guid? taskId, CancellationToken cancellationToken);
 }

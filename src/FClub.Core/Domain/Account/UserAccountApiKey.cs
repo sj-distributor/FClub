@@ -20,5 +20,5 @@ public class UserAccountApiKey : IEntity
     
     [Column("description")]
     [StringLength(256)]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

@@ -1,7 +1,6 @@
 using FClub.Core.Data;
 using FClub.Core.Domain.File;
 using Microsoft.EntityFrameworkCore;
-using File = FClub.Core.Domain.File.File;
 
 namespace FClub.Core.Services.FileService;
 
@@ -16,39 +15,44 @@ public class FileDataProvider : IFileDataProvider
         _unitOfWork = unitOfWork;
     }
 
-    public async Task AddFileTaskAsync(FileTask fileTask, CancellationToken cancellationToken)
+    public async Task AddFileTaskAsync(FileTask fileTask, bool forSave = true, CancellationToken cancellationToken = default)
     {
         await _repository.InsertAsync(fileTask, cancellationToken).ConfigureAwait(false);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        if (forSave)
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task AddFilesAsync(List<File> files, CancellationToken cancellationToken)
+    public async Task AddFilesAsync(List<FClubFile> fClubFiles, bool forSave = true, CancellationToken cancellationToken = default)
     {
-        await _repository.InsertAllAsync(files, cancellationToken).ConfigureAwait(false);
+        await _repository.InsertAllAsync(fClubFiles, cancellationToken).ConfigureAwait(false);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        if (forSave)
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
     
-    public async Task AddFileAsync(File file, CancellationToken cancellationToken)
+    public async Task AddFileAsync(FClubFile fClubFile, bool forSave = true, CancellationToken cancellationToken = default)
     {
-        await _repository.InsertAsync(file, cancellationToken).ConfigureAwait(false);
+        await _repository.InsertAsync(fClubFile, cancellationToken).ConfigureAwait(false);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        if (forSave)
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task AddUploadSettingAsync(UploadSetting uploadSetting, CancellationToken cancellationToken)
+    public async Task AddUploadSettingAsync(UploadSetting uploadSetting, bool forSave = true, CancellationToken cancellationToken = default)
     {
         await _repository.InsertAsync(uploadSetting, cancellationToken).ConfigureAwait(false);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        if (forSave)
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task UpdateFileTaskAsync(FileTask fileTask, CancellationToken cancellationToken)
+    public async Task UpdateFileTaskAsync(FileTask fileTask, bool forSave = true, CancellationToken cancellationToken = default)
     {
         await _repository.UpdateAsync(fileTask, cancellationToken).ConfigureAwait(false);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        if (forSave)
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<FileTask> GetFileTaskByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -56,9 +60,9 @@ public class FileDataProvider : IFileDataProvider
         return await _repository.GetByIdAsync<FileTask>(id, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<List<File>> GetFilesAsync(Guid? taskId, CancellationToken cancellationToken)
+    public async Task<List<FClubFile>> GetFilesAsync(Guid? taskId, CancellationToken cancellationToken)
     {
-        var qeury = _repository.Query<File>();
+        var qeury = _repository.Query<FClubFile>();
 
         if (taskId.HasValue)
             qeury = qeury.Where(x => x.TaskId == taskId.Value);
